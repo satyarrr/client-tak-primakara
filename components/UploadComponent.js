@@ -1,22 +1,23 @@
 "use client";
 
+import useAuthentication from "@/hooks/useAuthentication";
 // components/UploadComponent.js
 
 import React, { useState, useEffect } from "react";
 
 const UploadComponent = () => {
+  const { user, logout } = useAuthentication();
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
-  const [status, setStatus] = useState("Pending");
   const [tagId, setTagId] = useState("");
   const [tags, setTags] = useState([]);
   const [uploading, setUploading] = useState(false);
-  const user_id = 1;
+  const user_id = 2;
 
   // Fungsi untuk mengambil data tag dari API
   const fetchTags = async () => {
     try {
-      const response = await fetch("http://localhost:2000/tags");
+      const response = await fetch("http://localhost:2000/tagsall");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -44,17 +45,16 @@ const UploadComponent = () => {
       return;
     }
 
-    // if (!file || !title || !status || !tagId) {
-    //   alert("Please fill in all fields.");
-    //   return;
-    // }
+    if (!file || !title || !tagId) {
+      alert("Please fill in all fields.");
+      return;
+    }
 
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
-    // formData.append("title", title);
-    // formData.append("status", status);
-    // formData.append("tag_id", tagId);
+    formData.append("title", title);
+    formData.append("tag_id", tagId);
     formData.append("user_id", user_id);
 
     try {
@@ -80,24 +80,23 @@ const UploadComponent = () => {
     }
   };
 
+  if (user?.role !== "mahasiswa") {
+    return (
+      <div>
+        <p>Sorry you don't have access to this page</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-        {/* <input
+        <input
           type="text"
           name="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Title"
-          className="form-input mt-1 block w-full"
-          required
-        />
-        <input
-          type="text"
-          name="status"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          placeholder="Status"
           className="form-input mt-1 block w-full"
           required
         />
@@ -117,7 +116,7 @@ const UploadComponent = () => {
               {tag.name}
             </option>
           ))}
-        </select> */}
+        </select>
         <input
           type="file"
           name="file"

@@ -16,7 +16,8 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18",
-    "react-modal": "^3.16.1"
+    "react-modal": "^3.16.1",
+    "react-tooltip": "^5.26.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.0.1",
