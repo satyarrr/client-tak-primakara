@@ -1,7 +1,7 @@
 "use client";
 import useAuthentication from "@/hooks/useAuthentication";
 import React, { useState, useEffect } from "react";
-import ReactTooltip from "react-tooltip";
+import { Spinner } from "@chakra-ui/react";
 
 const CertificatesUser = ({ user_id }) => {
   const { user } = useAuthentication();
@@ -12,11 +12,7 @@ const CertificatesUser = ({ user_id }) => {
   const [loadingTags, setLoadingTags] = useState(true);
   const [errorTags, setErrorTags] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [errorCategories, setErrorCategories] = useState(null);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [totalPoints, setTotalPoints] = useState({});
-  const [totalPointsSum, setTotalPointsSum] = useState(0);
+  const [loadingImage, setLoadingImage] = useState(false);
 
   const fetchCertificates = async () => {
     console.log("user", user);
@@ -50,64 +46,16 @@ const CertificatesUser = ({ user_id }) => {
       setLoadingTags(false);
     }
   };
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch(`http://localhost:2000/categories`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch categories");
-      }
-      const data = await response.json();
-      setCategories(data.categories || []);
-      setLoadingCategories(false);
-    } catch (error) {
-      setErrorCategories(error.message);
-      setLoadingCategories(false);
-    }
-  };
 
   useEffect(() => {
     if (user?.user_id) {
       fetchCertificates();
       fetchTags();
-      fetchCategories();
     }
   }, [user?.user_id]);
 
-  useEffect(() => {
-    if (certificates.length > 0 && tags.length > 0) {
-      const certificatesByCategory = certificates.reduce((acc, certificate) => {
-        const tag = tags.find((tag) => tag.id === certificate.tag_id);
-        if (tag) {
-          const category_id = tag.category_id;
-          acc[category_id] = acc[category_id] || [];
-          acc[category_id].push(certificate);
-        }
-        return acc;
-      }, {});
-      const categoryPoints = {};
-      for (const category_id in certificatesByCategory) {
-        const categoryCertificates = certificatesByCategory[category_id];
-        const totalPointsForCategory = categoryCertificates.reduce(
-          (total, certificate) => {
-            const tag = tags.find((tag) => tag.id === certificate.tag_id);
-            return total + (tag ? tag.value : 0);
-          },
-          0
-        );
-        categoryPoints[category_id] = totalPointsForCategory;
-      }
-      setTotalPoints(categoryPoints);
-
-      // Calculate total points sum
-      const sum = Object.values(categoryPoints).reduce(
-        (acc, curr) => acc + curr,
-        0
-      );
-      setTotalPointsSum(sum);
-    }
-  }, [certificates, tags]);
-
   const handlePreview = (filePath) => {
+    setLoadingImage(true);
     setPreviewImage(filePath);
   };
 
@@ -129,23 +77,6 @@ const CertificatesUser = ({ user_id }) => {
 
   return (
     <div className="p-4">
-      <h2 className="mb-4 text-lg font-semibold">
-        Certificates for User {user?.full_name}
-      </h2>
-      <div className="mb-4">
-        <p className="font-semibold">Total Points: {totalPointsSum}</p>
-      </div>
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Categories</h3>
-        <div className="list-disc pl-6">
-          {categories.map((category) => (
-            <div key={category.category_id}>
-              {category.name}: {totalPoints[category.category_id] || 0} points
-            </div>
-          ))}
-        </div>
-      </div>
-
       <div className="overflow-x-auto">
         <table className="w-full bg-white border-collapse border border-gray-200">
           <thead>
@@ -210,12 +141,19 @@ const CertificatesUser = ({ user_id }) => {
       </div>
       {/* Modal for image preview */}
       {previewImage && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-          <div className="bg-white p-4 max-w-lg">
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-75 flex items-center justify-center ">
+          <div className="bg-white">
+            {loadingImage && ( // Tampilkan animasi loading jika loadingImage bernilai true
+              <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
+                {/* <Spinner size="xl" /> */}
+                <div class="border-t-4 border-blue-500 rounded-full w-12 h-12 animate-spin"></div>
+              </div>
+            )}
             <img
               src={previewImage}
               alt="Certificate Preview"
               className="w-full"
+              onLoad={() => setLoadingImage(false)}
             />
             <button
               className="absolute top-0 right-0 m-4 text-red-500 text-3xl hover:text-gray-800"

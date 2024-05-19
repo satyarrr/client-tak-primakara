@@ -27,7 +27,9 @@ const useAuthentication = () => {
   }
 
   const logout = async () => {
-    // Logoasidoasidoas
+    localStorage.removeItem("token");
+    setUser(null);
+    router.push("/login");
   };
 
   useEffect(() => {

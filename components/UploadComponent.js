@@ -1,7 +1,6 @@
 "use client";
 
 import useAuthentication from "@/hooks/useAuthentication";
-// components/UploadComponent.js
 
 import React, { useState, useEffect } from "react";
 
@@ -12,7 +11,7 @@ const UploadComponent = () => {
   const [tagId, setTagId] = useState("");
   const [tags, setTags] = useState([]);
   const [uploading, setUploading] = useState(false);
-  const user_id = 2;
+  // const user_id = 2;
 
   // Fungsi untuk mengambil data tag dari API
   const fetchTags = async () => {
@@ -55,7 +54,7 @@ const UploadComponent = () => {
     formData.append("file", file);
     formData.append("title", title);
     formData.append("tag_id", tagId);
-    formData.append("user_id", user_id);
+    formData.append("user_id", user?.user_id);
 
     try {
       const response = await fetch("http://localhost:2000/upload", {
@@ -90,6 +89,7 @@ const UploadComponent = () => {
 
   return (
     <div>
+      <button onClick={logout}>Logout</button>
       <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <input
           type="text"
