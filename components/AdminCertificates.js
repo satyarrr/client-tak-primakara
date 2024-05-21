@@ -1,18 +1,23 @@
 "use client";
-import useAuthentication from "@/hooks/useAuthentication";
+import useAuthentication from "../hooks/useAuthentication";
 import React, { useState, useEffect } from "react";
 
 const AdminCertificates = () => {
-  const { user, logout } = useAuthentication();
+  const { user } = useAuthentication();
   const [certificates, setCertificates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [tags, setTags] = useState([]);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectCertId, setRejectCertId] = useState(null);
 
   useEffect(() => {
     fetchCertificates();
-    console.log("date", certificates.time_stamp);
+    fetchTags();
   }, []);
+
   const fetchCertificates = async () => {
     try {
       const response = await fetch(
@@ -30,6 +35,59 @@ const AdminCertificates = () => {
     }
   };
 
+  const fetchTags = async () => {
+    try {
+      const response = await fetch("http://localhost:2000/tags");
+      if (!response.ok) {
+        throw new Error("Failed to fetch tags");
+      }
+      const data = await response.json();
+      setTags(data || []);
+    } catch (error) {
+      console.error("Error fetching tags:", error.message);
+    }
+  };
+
+  const getTagName = (tagId) => {
+    const tag = tags.find((tag) => tag.id === tagId);
+    return tag ? tag.name : "Unknown";
+  };
+
+  const getTagValue = (tagId) => {
+    const tag = tags.find((tag) => tag.id === tagId); // Change tag_id to id
+    return tag ? tag.value || "N/A" : "Unknown";
+  };
+  const handleReject = (certId) => {
+    setRejectCertId(certId);
+    setRejectReason("");
+    setShowRejectModal(true);
+  };
+  const handleCloseRejectModal = () => {
+    setShowRejectModal(false);
+  };
+
+  const handleRejectSubmit = async (certId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:2000/certificate/${certId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "reject", reason: rejectReason }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to reject certificate");
+      }
+      setShowRejectModal(false);
+      fetchCertificates();
+    } catch (error) {
+      console.error("Error rejecting certificate:", error.message);
+    }
+  };
+
   const handleStatusChange = async (id, status) => {
     try {
       const response = await fetch(`http://localhost:2000/certificate/${id}`, {
@@ -37,13 +95,12 @@ const AdminCertificates = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status }), // Send the status in the request body
+        body: JSON.stringify({ status }),
       });
       if (!response.ok) {
         throw new Error("Failed to update certificate status");
       }
       fetchCertificates();
-      // Refresh the certificates list after successful update
     } catch (error) {
       console.error("Error updating certificate status:", error.message);
     }
@@ -70,52 +127,47 @@ const AdminCertificates = () => {
   }
 
   return (
-    <div class="py-8">
-      <button onClick={logout}>Logout</button>
-      <h2 class="text-xl font-bold mb-4">Admin Certificates</h2>
+    <div className="py-8">
       <ul>
         {certificates.map((certificate) => (
           <li
             key={certificate.cert_id}
-            class="bg-white shadow-md rounded-lg p-6 mb-4"
+            className="bg-white shadow-md rounded-lg p-6 mb-4"
           >
             <p class="mb-2">
-              <span class="font-semibold">Title:</span> {certificate.title}
+              <span className="font-semibold">Tag: </span>
+              {getTagName(certificate.tag_id)}
             </p>
-            <p class="mb-2">
-              <span class="font-semibold">Status:</span> {certificate.status}
+            <p className="mb-2">
+              <span classNameName="font-semibold">Poin:</span>{" "}
+              {getTagValue(certificate.tag_id)}
             </p>
-            <p class="mb-2">
-              <span class="font-semibold">User ID:</span> {certificate.user_id}
-            </p>
-            <p class="mb-2">
-              <span class="font-semibold">Time :</span>{" "}
+            <p className="mb-2">
+              <span className="font-semibold">Time :</span>{" "}
               {new Date(certificate.time_stamp).toLocaleString({
                 hour12: false,
               })}
             </p>
-            <p class="mb-2">
-              <span class="font-semibold">Full Name:</span>{" "}
+            <p className="mb-2">
+              <span className="font-semibold">Full Name:</span>{" "}
               {certificate.user.full_name}
             </p>
-            <p class="mb-2">
-              <span class="font-semibold">User NIM:</span>{" "}
+            <p className="mb-2">
+              <span className="font-semibold">User NIM:</span>{" "}
               {certificate.user.nim}
             </p>
-            <div class="flex space-x-4">
+            <div className="flex space-x-4">
               <button
                 onClick={() =>
                   handleStatusChange(certificate.cert_id, "approve")
                 }
-                class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               >
                 Approve
               </button>
               <button
-                onClick={() =>
-                  handleStatusChange(certificate.cert_id, "reject")
-                }
-                class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                onClick={() => handleReject(certificate.cert_id)}
+                className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               >
                 Reject
               </button>
@@ -144,6 +196,42 @@ const AdminCertificates = () => {
             >
               X
             </button>
+          </div>
+        </div>
+      )}
+      {showRejectModal && (
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+          <div className="bg-white p-4 max-w-lg">
+            <h2 className="text-lg font-semibold mb-2">Reject Certificate</h2>
+            <form onSubmit={() => handleRejectSubmit(rejectCertId)}>
+              {" "}
+              {/* Menggunakan rejectCertId */}
+              <label className="block mb-2">
+                Reason for rejection:
+                <textarea
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  rows="4"
+                  className="w-full border border-gray-300 rounded-md p-2"
+                  required
+                />
+              </label>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  className="bg-gray-400 text-white font-bold py-2 px-4 rounded mr-2"
+                  onClick={handleCloseRejectModal}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+                >
+                  Reject
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

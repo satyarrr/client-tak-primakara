@@ -1,9 +1,8 @@
 "use client";
-import useAuthentication from "@/hooks/useAuthentication";
+import useAuthentication from "../hooks/useAuthentication";
 import React, { useState, useEffect } from "react";
-import { Spinner } from "@chakra-ui/react";
 
-const CertificatesUser = ({ user_id }) => {
+const CertificatesUser = () => {
   const { user } = useAuthentication();
   const [certificates, setCertificates] = useState([]);
   const [loadingCertificates, setLoadingCertificates] = useState(true);
@@ -13,9 +12,10 @@ const CertificatesUser = ({ user_id }) => {
   const [errorTags, setErrorTags] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [loadingImage, setLoadingImage] = useState(false);
+  const [certificateReason, setCertificateReason] = useState(null);
+  const [showReasonModal, setShowReasonModal] = useState(false);
 
   const fetchCertificates = async () => {
-    console.log("user", user);
     try {
       const response = await fetch(
         `http://localhost:2000/certificates/${user?.user_id}`
@@ -39,7 +39,7 @@ const CertificatesUser = ({ user_id }) => {
         throw new Error("Failed to fetch tags");
       }
       const data = await response.json();
-      setTags(data || []); // Ensure tags data is set properly
+      setTags(data || []);
       setLoadingTags(false);
     } catch (error) {
       setErrorTags(error.message);
@@ -57,6 +57,11 @@ const CertificatesUser = ({ user_id }) => {
   const handlePreview = (filePath) => {
     setLoadingImage(true);
     setPreviewImage(filePath);
+  };
+
+  const handleOpenReasonModal = (reasonPath) => {
+    setCertificateReason(reasonPath);
+    setShowReasonModal(true);
   };
 
   if (loadingCertificates || loadingTags) {
@@ -81,11 +86,13 @@ const CertificatesUser = ({ user_id }) => {
         <table className="w-full bg-white border-collapse border border-gray-200">
           <thead>
             <tr className="bg-gray-100">
-              <th className="py-2 px-4 text-left">Title</th>
-              <th className="py-2 px-4 text-left">Status</th>
-              <th className="py-2 px-4 text-left">Tag Name</th>
-              <th className="py-2 px-4 text-left">Poin TAK</th>
-              <th className="py-2 px-4 text-left">Preview</th>
+              <th className="py-2 px-4 text-center">Title</th>
+              <th className="py-2 px-4 text-center">Status</th>
+              <th className="py-2 px-4 text-center">Tag Name</th>
+              <th className="py-2 px-4 text-center">Poin TAK</th>
+              <th className="py-2 px-4 text-center">Action</th>
+              <th className="py-2 px-4 text-center">Reason</th>{" "}
+              {/* Kolom baru untuk tombol Reason */}
             </tr>
           </thead>
           <tbody>
@@ -96,9 +103,9 @@ const CertificatesUser = ({ user_id }) => {
                 </td>
                 <td className="py-2 px-4 border border-gray-200 text-center">
                   <div
-                    className={`w-5 h-5 rounded-full flex items-center mx-1 justify-center ${
+                    className={`w-5 h-5 rounded-full mx-auto flex items-center justify-center ${
                       certificate.status === "reject"
-                        ? "bg-red-500 "
+                        ? "bg-red-500"
                         : certificate.status === "pending"
                         ? "bg-yellow-500"
                         : "bg-green-500"
@@ -119,19 +126,27 @@ const CertificatesUser = ({ user_id }) => {
                     .map((tag) => tag.name)
                     .join(", ")}
                 </td>
-                <td className="py-2 px-4 border border-gray-200">
+                <td className="py-2 px-4 border border-gray-200 text-center">
                   {/* Finding tag value for the certificate */}
                   {tags
                     .filter((tag) => tag.id === certificate.tag_id)
                     .map((tag) => tag.value)
                     .join(", ")}
                 </td>
-                <td className="py-2 px-4 border border-gray-200">
+                <td className="py-2 px-4 border border-gray-200 text-center">
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     onClick={() => handlePreview(certificate.file_path)}
                   >
                     Preview
+                  </button>
+                </td>
+                <td className="py-2 px-4 border border-gray-200 text-center">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    onClick={() => handleOpenReasonModal(certificate.reason)}
+                  >
+                    Reason
                   </button>
                 </td>
               </tr>
@@ -143,9 +158,8 @@ const CertificatesUser = ({ user_id }) => {
       {previewImage && (
         <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-75 flex items-center justify-center ">
           <div className="bg-white">
-            {loadingImage && ( // Tampilkan animasi loading jika loadingImage bernilai true
+            {loadingImage && (
               <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-                {/* <Spinner size="xl" /> */}
                 <div class="border-t-4 border-blue-500 rounded-full w-12 h-12 animate-spin"></div>
               </div>
             )}
@@ -160,6 +174,20 @@ const CertificatesUser = ({ user_id }) => {
               onClick={() => setPreviewImage(null)}
             >
               X
+            </button>
+          </div>
+        </div>
+      )}
+      {showReasonModal && (
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-75 flex items-center justify-center ">
+          <div className="bg-white p-4">
+            <h2 className="text-lg font-semibold mb-4">Certificate Reason</h2>
+            <p className="overflow-auto max-h-80">{certificateReason}</p>
+            <button
+              className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={() => setShowReasonModal(false)}
+            >
+              Close
             </button>
           </div>
         </div>

@@ -1,5 +1,5 @@
-import AdminNavbar from "@/components/AdminNavbar";
-import MahasiswaList from "@/components/MahasiswaList";
+import AdminNavbar from "../../../components/AdminNavbar";
+import MahasiswaList from "../../../components/MahasiswaList";
 import React from "react";
 
 const page = () => {

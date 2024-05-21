@@ -1,6 +1,6 @@
 "use client";
-import AdminNavbar from "@/components/AdminNavbar";
-import CreateTag from "@/components/CreateTag";
+import AdminNavbar from "../../../components/AdminNavbar";
+import CreateTag from "../../../components/CreateTag";
 import React from "react";
 
 const page = () => {

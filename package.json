@@ -21,8 +21,11 @@
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18",
+    "react-dropzone": "^14.2.3",
     "react-modal": "^3.16.1",
-    "react-tooltip": "^5.26.0"
+    "react-tooltip": "^5.26.0",
+    "sweetalert2": "^11.11.0",
+    "sweetalert2-react-content": "^5.0.7"
   },
   "devDependencies": {
     "@types/node": "20.12.8",
