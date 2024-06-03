@@ -1,7 +1,7 @@
 "use client";
 
 import useAuthentication from "../hooks/useAuthentication";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
@@ -14,11 +14,14 @@ const UploadComponent = () => {
   const [tagId, setTagId] = useState("");
   const [tags, setTags] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   // Fungsi untuk mengambil data tag dari API
   const fetchTags = async () => {
     try {
-      const response = await fetch("http://localhost:2000/tagsall");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/tagsall`
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -59,10 +62,13 @@ const UploadComponent = () => {
     formData.append("user_id", user?.user_id);
 
     try {
-      const response = await fetch("http://localhost:2000/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}http://localhost:2000/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (response.ok) {
         const result = await response.json();
@@ -80,10 +86,13 @@ const UploadComponent = () => {
           buttonsStyling: false,
         });
 
-        // Reset form or handle success
+        // Reset form state
         setFile(null);
         setTitle("");
         setTagId("");
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
       } else {
         const error = await response.json();
         console.error("Upload failed:", error);
@@ -139,7 +148,7 @@ const UploadComponent = () => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Input your title for certificate"
-            className="form-input mt-1 block w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
+            className="input input-bordered w-full "
             required
           />
           <select
@@ -149,7 +158,7 @@ const UploadComponent = () => {
               setTagId(e.target.value);
               console.log(e.target.value);
             }}
-            className="form-select mt-1 block w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
+            className=" select select-bordered w-full "
             required
           >
             <option value="">Select Tag</option>
@@ -162,14 +171,15 @@ const UploadComponent = () => {
           <input
             type="file"
             name="file"
+            ref={fileInputRef}
             onChange={handleFileChange}
-            className="form-input mt-1 block w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:border-blue-500"
+            className="file-input file-input-bordered w-full "
             required
           />
           <button
             type="submit"
             disabled={uploading}
-            className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ${
+            className={`btn ${
               uploading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >

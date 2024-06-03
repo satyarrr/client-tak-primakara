@@ -16,7 +16,9 @@ const CreateTag = () => {
   }, []);
   const fetchCategories = async () => {
     try {
-      const response = await fetch("http://localhost:2000/categories");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/categories`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch categories");
       }
@@ -42,7 +44,7 @@ const CreateTag = () => {
   const handleSubmitTag = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:2000/tags", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tags`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -80,43 +82,35 @@ const CreateTag = () => {
         <h2 className="text-xl font-semibold mb-4 text-center">Create Tag</h2>
 
         <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-4 text-center">Create Tag</h3>
           <form onSubmit={handleSubmitTag} className="space-y-4">
             <div>
-              <label htmlFor="tagName" className="block text-gray-700">
-                Tag Name:
-              </label>
               <input
                 type="text"
                 id="tagName"
                 value={tagName}
+                placeholder="input tag name"
                 onChange={handleTagNameChange}
-                className="border border-gray-300 rounded px-4 py-2 w-full focus:outline-none focus:border-blue-500"
+                className="input input-bordered w-full"
                 required
               />
             </div>
             <div>
-              <label htmlFor="tagValue" className="block text-gray-700">
-                Tag Value:
-              </label>
               <input
                 type="number"
                 id="tagValue"
                 value={tagValue}
+                placeholder="input value point for tag"
                 onChange={handleTagValueChange}
-                className="border border-gray-300 rounded px-4 py-2 w-full focus:outline-none focus:border-blue-500"
+                className="input input-bordered w-full"
                 required
               />
             </div>
             <div>
-              <label htmlFor="category" className="block text-gray-700">
-                Category:
-              </label>
               <select
                 id="category"
                 value={selectedCategory}
                 onChange={handleCategoryChange}
-                className="border border-gray-300 rounded px-4 py-2 w-full focus:outline-none focus:border-blue-500"
+                className="select select-bordered w-full"
                 required
               >
                 <option value="">Select category</option>
@@ -130,10 +124,7 @@ const CreateTag = () => {
                 ))}
               </select>
             </div>
-            <button
-              type="submit"
-              className="bg-blue-500 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700"
-            >
+            <button type="submit" className="btn w-full">
               Create Tag
             </button>
           </form>

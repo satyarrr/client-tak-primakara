@@ -13,15 +13,18 @@ const CreateCategorie = () => {
   const handleSubmitCategory = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:2000/categories", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: categoryName,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/categories`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: categoryName,
+          }),
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to create category");
       }
@@ -48,22 +51,17 @@ const CreateCategorie = () => {
         </h3>
         <form onSubmit={handleSubmitCategory}>
           <div className="mb-4">
-            <label htmlFor="categoryName" className="block text-gray-700">
-              Category Name:
-            </label>
             <input
               type="text"
               id="categoryName"
               value={categoryName}
+              placeholder="input category name"
               onChange={handleCategoryNameChange}
-              className="border border-gray-300 rounded px-4 py-2 w-full focus:outline-none focus:border-blue-500"
+              className="input input-bordered w-full mt-3"
               required
             />
           </div>
-          <button
-            type="submit"
-            className="bg-blue-500 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700"
-          >
+          <button type="submit" className="btn w-full">
             Create Category
           </button>
         </form>

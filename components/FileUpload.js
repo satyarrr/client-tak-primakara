@@ -44,10 +44,13 @@ const FileUpload = () => {
       formData.append("file", excelFile);
       formData.append("image", imageFile);
 
-      const response = await fetch("http://localhost:2000/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -75,14 +78,14 @@ const FileUpload = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mb-52">
         <h2 className="text-xl font-semibold mb-4 text-center">
           Upload Excel File and Image
         </h2>
 
         <div
           {...getExcelRootProps()}
-          className="border border-gray-300 rounded-md p-4 text-center cursor-pointer mb-4"
+          className="border border-gray-300 rounded-md p-4 text-center cursor-pointer mb-2"
         >
           <input {...getExcelInputProps()} />
           {isExcelDragActive ? (
@@ -113,8 +116,8 @@ const FileUpload = () => {
         <button
           onClick={handleSubmit}
           disabled={uploading}
-          className={`bg-blue-500 text-white font-semibold py-2 px-4 rounded mb-4 w-full ${
-            uploading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+          className={`btn w-full ${
+            uploading ? "opacity-50 cursor-not-allowed" : " "
           }`}
         >
           {uploading ? "Uploading..." : "Upload"}

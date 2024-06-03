@@ -11,7 +11,7 @@ const MahasiswaPoints = () => {
   const fetchUserData = async () => {
     try {
       const response = await fetch(
-        `http://localhost:2000/user/${user?.user_id}/mahasiswa`
+        `${process.env.NEXT_PUBLIC_API_URL}/user/${user.user_id}/mahasiswa`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch user data");
@@ -34,7 +34,11 @@ const MahasiswaPoints = () => {
   }, [user?.user_id]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <span className="loading loading-ring loading-lg"></span>
+      </div>
+    );
   }
 
   if (error) {

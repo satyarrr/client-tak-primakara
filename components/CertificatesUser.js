@@ -11,6 +11,7 @@ const CertificatesUser = () => {
   const [loadingTags, setLoadingTags] = useState(true);
   const [errorTags, setErrorTags] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [previewPDF, setPreviewPDF] = useState(null);
   const [loadingImage, setLoadingImage] = useState(false);
   const [certificateReason, setCertificateReason] = useState(null);
   const [showReasonModal, setShowReasonModal] = useState(false);
@@ -18,7 +19,7 @@ const CertificatesUser = () => {
   const fetchCertificates = async () => {
     try {
       const response = await fetch(
-        `http://localhost:2000/certificates/${user?.user_id}`
+        `${process.env.NEXT_PUBLIC_API_URL}/certificates/${user?.user_id}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch certificates");
@@ -34,7 +35,7 @@ const CertificatesUser = () => {
 
   const fetchTags = async () => {
     try {
-      const response = await fetch(`http://localhost:2000/tags`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tags`);
       if (!response.ok) {
         throw new Error("Failed to fetch tags");
       }
@@ -56,7 +57,17 @@ const CertificatesUser = () => {
 
   const handlePreview = (filePath) => {
     setLoadingImage(true);
-    setPreviewImage(filePath);
+    if (filePath.toLowerCase().endsWith(".pdf")) {
+      setPreviewPDF(filePath);
+      setPreviewImage(null);
+    } else if (filePath.match(/\.(jpeg|jpg|gif|png)$/i)) {
+      setPreviewImage(filePath);
+      setPreviewPDF(null);
+    } else {
+      setPreviewPDF(null);
+      setPreviewImage(null);
+      console.error("File format not supported");
+    }
   };
 
   const handleOpenReasonModal = (reasonPath) => {
@@ -64,18 +75,22 @@ const CertificatesUser = () => {
     setShowReasonModal(true);
   };
 
-  if (loadingCertificates || loadingTags) {
-    return <p>Loading...</p>;
+  if (user?.role !== "mahasiswa") {
+    return (
+      <div>
+        <p>Sorry you don't have access to this page</p>
+      </div>
+    );
   }
 
   if (errorCertificates || errorTags) {
     return <p>Error: {errorCertificates || errorTags}</p>;
   }
 
-  if (user.role !== "mahasiswa") {
+  if (loadingCertificates || loadingTags) {
     return (
-      <div>
-        <p>Sorry you don't have access to this page</p>
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <span className="loading loading-ring loading-lg"></span>
       </div>
     );
   }
@@ -91,8 +106,6 @@ const CertificatesUser = () => {
               <th className="py-2 px-4 text-center">Tag Name</th>
               <th className="py-2 px-4 text-center">Poin TAK</th>
               <th className="py-2 px-4 text-center">Action</th>
-              <th className="py-2 px-4 text-center">Reason</th>{" "}
-              {/* Kolom baru untuk tombol Reason */}
             </tr>
           </thead>
           <tbody>
@@ -133,20 +146,18 @@ const CertificatesUser = () => {
                     .map((tag) => tag.value)
                     .join(", ")}
                 </td>
-                <td className="py-2 px-4 border border-gray-200 text-center">
+                <td className="border border-gray-200 text-center flex gap-2 py-2">
                   <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    className="btn ml-4"
                     onClick={() => handlePreview(certificate.file_path)}
                   >
                     Preview
                   </button>
-                </td>
-                <td className="py-2 px-4 border border-gray-200 text-center">
                   <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    className="btn"
                     onClick={() => handleOpenReasonModal(certificate.reason)}
                   >
-                    Reason
+                    Detail
                   </button>
                 </td>
               </tr>
@@ -154,39 +165,74 @@ const CertificatesUser = () => {
           </tbody>
         </table>
       </div>
-      {/* Modal for image preview */}
       {previewImage && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-75 flex items-center justify-center ">
-          <div className="bg-white">
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center">
+          <div className="bg-slate-50 items-center p-5 w-[500px] justify-center  rounded-lg ">
             {loadingImage && (
-              <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
-                <div class="border-t-4 border-blue-500 rounded-full w-12 h-12 animate-spin"></div>
+              <div className="flex items-center justify-center h-screen bg-slate-50">
+                <span className="loading loading-ring loading-lg"></span>
               </div>
             )}
-            <img
-              src={previewImage}
-              alt="Certificate Preview"
-              className="w-full"
-              onLoad={() => setLoadingImage(false)}
-            />
-            <button
-              className="absolute top-0 right-0 m-4 text-red-500 text-3xl hover:text-gray-800"
-              onClick={() => setPreviewImage(null)}
-            >
-              X
-            </button>
+
+            <div className=" flex flex-col justify-center items-center">
+              {loadingImage && (
+                <div className="flex items-center justify-center h-screen bg-slate-50">
+                  <span className="loading loading-ring loading-lg"></span>
+                </div>
+              )}
+              <h2 className="font-semibold mb-2 text-center">
+                Image Certificate
+              </h2>
+              <img
+                src={previewImage}
+                alt="Certificate Preview"
+                className="object-cover w-60"
+                onLoad={() => setLoadingImage(false)}
+              />
+            </div>
+            <div className=" w-full flex justify-end">
+              <button className="btn" onClick={() => setPreviewImage(null)}>
+                close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {previewPDF && (
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center ">
+          <div className="bg-white items-center p-5 w-[500] justify-center rounded-lg">
+            {loadingImage && (
+              <div className="flex items-center justify-center h-screen bg-slate-50">
+                <span className="loading loading-ring loading-lg"></span>
+              </div>
+            )}
+            <div className=" flex flex-col justify-center items-center">
+              <h2 className="text-semi bold mb-2 text-center">
+                {" "}
+                PDF Certificate
+              </h2>
+              <iframe
+                src={previewPDF}
+                className="w-full h-[450px]"
+                title="PDF Preview"
+                onLoad={() => setLoadingImage(true)}
+              ></iframe>
+            </div>
+            <div className="w-full flex justify-end">
+              <button className="btn" onClick={() => setPreviewPDF(null)}>
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
       {showReasonModal && (
         <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-75 flex items-center justify-center ">
-          <div className="bg-white p-4">
+          <div className="bg-white p-4 rounded-lg">
             <h2 className="text-lg font-semibold mb-4">Certificate Reason</h2>
-            <p className="overflow-auto max-h-80">{certificateReason}</p>
-            <button
-              className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              onClick={() => setShowReasonModal(false)}
-            >
+            <p className="overflow-auto max-h-80 m-5 ">{certificateReason}</p>
+            <button className="btn" onClick={() => setShowReasonModal(false)}>
               Close
             </button>
           </div>
