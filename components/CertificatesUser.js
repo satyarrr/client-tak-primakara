@@ -116,7 +116,7 @@ const CertificatesUser = () => {
                 </td>
                 <td className="py-2 px-4 border border-gray-200 text-center">
                   <div
-                    className={`w-5 h-5 rounded-full mx-auto flex items-center justify-center ${
+                    className={`w-5 h-5 rounded-full mx-auto flex items-center justify-center tooltip ${
                       certificate.status === "reject"
                         ? "bg-red-500"
                         : certificate.status === "pending"
@@ -216,7 +216,7 @@ const CertificatesUser = () => {
                 src={previewPDF}
                 className="w-full h-[450px]"
                 title="PDF Preview"
-                onLoad={() => setLoadingImage(true)}
+                onLoad={() => setLoadingImage(false)}
               ></iframe>
             </div>
             <div className="w-full flex justify-end">

@@ -63,7 +63,7 @@ const UploadComponent = () => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}http://localhost:2000/upload`,
+        `${process.env.NEXT_PUBLIC_API_URL}/upload`,
         {
           method: "POST",
           body: formData,
