@@ -36,31 +36,28 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-400 ">
-      <div className="max-w-screen-lg w-9/12 flex justify-center overflow-hidden rounded">
+    <div className="flex items-center justify-center min-h-screen bg-gray-400 p-4 md:p-0">
+      <div className="max-w-screen-lg w-full md:w-9/12 flex flex-col md:flex-row justify-center overflow-hidden rounded-lg bg-white shadow-lg">
         {/* Bagian kiri (gambar) */}
-        <div className="  relative">
+        <div className="relative hidden md:block w-full md:w-1/2">
           <img
             src="https://primakara.ac.id/assets/primakara-university-building.a6543dc5.jpg" // Ganti dengan path gambar Anda
             alt="Image"
-            className="h-96 w-96 object-cover rounded-l-md brightness-90"
+            className="h-full w-full object-cover brightness-90"
           />
-          <span className=" absolute bottom-20 underline decoration-lime-400 left-4 text-white">
+          <span className="absolute bottom-20 underline decoration-lime-400 left-4 text-white">
             Selamat datang
           </span>
           <span className="absolute bottom-10 left-4 text-white font-bold">
             Sistem Informasi Manajemen TAK
           </span>
-          <span className=" absolute text-white  bottom-3 left-4 font-bold text-2xl">
+          <span className="absolute text-white bottom-3 left-4 font-bold text-2xl">
             Universitas Primakara
           </span>
         </div>
         {/* Bagian kanan (form login) */}
-        <div className=" h-96">
-          <form
-            className="bg-white shadow-md h-96 px-8 pt-6 pb-8 rounded-r-md"
-            onSubmit={handleSubmit}
-          >
+        <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12">
+          <form className="w-full" onSubmit={handleSubmit}>
             <h2 className="text-2xl font-bold mb-8 text-center">Login</h2>
             {error && <p className="text-red-500 mb-4">{error}</p>}
             <div className="mb-4">
@@ -73,7 +70,7 @@ const Login = () => {
               <input
                 type="text"
                 id="nim"
-                className="input input-bordered"
+                className="input input-bordered w-full"
                 placeholder="Enter your NIM"
                 value={nim}
                 onChange={(e) => setNim(e.target.value)}
@@ -90,7 +87,7 @@ const Login = () => {
               <input
                 type="password"
                 id="password"
-                className=" input input-bordered"
+                className="input input-bordered w-full"
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -98,7 +95,7 @@ const Login = () => {
               />
             </div>
             <div className="flex items-center justify-between">
-              <button type="submit" className="btn">
+              <button type="submit" className="btn w-full">
                 Sign In
               </button>
             </div>
