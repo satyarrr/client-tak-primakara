@@ -32,12 +32,12 @@ const useAuthentication = () => {
     router.push("/login");
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token");
-      fetchUser(token);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const token = localStorage.getItem("token");
+  //     fetchUser(token);
+  //   }
+  // }, []);
 
   return { user, fetchUser, logout };
 };

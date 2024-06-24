@@ -25,7 +25,7 @@ const Login = () => {
       }
 
       const data = await response.json();
-
+      console.log("data login", data);
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("token", data.token);
 
