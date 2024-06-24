@@ -9,7 +9,7 @@ const useAuthentication = () => {
 
   async function fetchUser(token) {
     try {
-      const response = await fetch("http://localhost:2000/user", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
         headers: { Authorization: `Bearer ${token}` },
         method: "POST",
       });
@@ -32,12 +32,12 @@ const useAuthentication = () => {
     router.push("/login");
   };
 
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const token = localStorage.getItem("token");
-  //     fetchUser(token);
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      fetchUser(token);
+    }
+  }, []);
 
   return { user, fetchUser, logout };
 };
