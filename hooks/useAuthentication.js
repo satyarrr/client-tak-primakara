@@ -9,7 +9,7 @@ const useAuthentication = () => {
 
   async function fetchUser(token) {
     try {
-      const response = await fetch("http://localhost:2000/user", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
         headers: { Authorization: `Bearer ${token}` },
         method: "POST",
       });
