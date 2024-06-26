@@ -402,35 +402,6 @@ const MahasiswaList = () => {
         </div>
       )}
 
-      {previewImage && (
-        <div className=" z-50 fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center">
-          <div className="bg-slate-50 items-center p-5 w-[500px] justify-center  rounded-lg ">
-            {loadingImage && (
-              <div className="flex items-center justify-center h-screen bg-slate-50">
-                <span className="loading loading-ring loading-lg"></span>
-              </div>
-            )}
-
-            <div className=" flex flex-col justify-center items-center">
-              <h2 className="font-semibold mb-2 text-center">
-                Image Certificate
-              </h2>
-              <img
-                src={previewImage}
-                alt="Certificate Preview"
-                className="object-cover w-60"
-                onLoad={() => setLoadingImage(false)}
-              />
-            </div>
-            <div className=" w-full flex justify-end">
-              <button className="btn" onClick={() => setPreviewImage(null)}>
-                close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {previewPDF && (
         <div className=" z-50 fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center ">
           <div className="bg-white items-center p-5 w-[500] justify-center rounded-lg">

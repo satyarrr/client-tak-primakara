@@ -66,11 +66,14 @@ const MahasiswaPoints = () => {
             Total Points
           </h2>
           <ul className="list-disc list-inside">
-            {Object.entries(userData.totalPoints).map(([category, points]) => (
-              <li key={category} className="mb-2 text-gray-700">
-                <span className="font-semibold">{category}:</span> {points}
-              </li>
-            ))}
+            {Object.entries(userData.totalPoints).map(
+              ([category, { points, min_point }]) => (
+                <li key={category} className="mb-2 text-gray-700">
+                  <span className="font-semibold">{category}:</span> {points}/
+                  {min_point}
+                </li>
+              )
+            )}
           </ul>
         </div>
       )}

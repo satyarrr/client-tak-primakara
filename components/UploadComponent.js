@@ -5,51 +5,105 @@ import React, { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
+import { cn } from "@/client/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
 const MySwal = withReactContent(Swal);
 
 const UploadComponent = () => {
   const { user } = useAuthentication();
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [tagId, setTagId] = useState("");
-  const [tags, setTags] = useState([]);
+  const [categories, setCategories] = useState([]); // Initialize as empty array
+  const [tags, setTags] = useState([]); // Initialize as empty array
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Fungsi untuk mengambil data tag dari API
-  const fetchTags = async () => {
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (categoryId) {
+      fetchTags(categoryId);
+    } else {
+      setTags([]); // Reset tags when no category is selected
+    }
+  }, [categoryId]);
+
+  const fetchCategories = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/tagsall`
+        `${process.env.NEXT_PUBLIC_API_URL}/categories`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setTags(data);
+      console.log("Fetched categories:", data); // Debugging line
+      setCategories(Array.isArray(data) ? data : []); // Ensure data is an array
     } catch (error) {
-      console.error("Could not fetch tags:", error);
+      console.error("Could not fetch categories:", error);
+      setCategories([]); // Set to empty array on error
     }
   };
 
-  useEffect(() => {
-    fetchTags();
-  }, []);
+  const fetchTags = async (categoryId) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/categories/${categoryId}/tags`
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Fetched tags:", data); // Debugging line
+      setTags(Array.isArray(data) ? data : []); // Ensure data is an array
+    } catch (error) {
+      console.error("Could not fetch tags:", error);
+      setTags([]); // Set to empty array on error
+    }
+  };
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      if (selectedFile.type !== "application/pdf") {
+        MySwal.fire({
+          title: "Error!",
+          text: "Only PDF files are allowed.",
+          icon: "error",
+          confirmButtonText: "OK",
+          customClass: {
+            confirmButton: "bg-red-500 text-white rounded px-4 py-2",
+          },
+          buttonsStyling: false,
+        });
+        fileInputRef.current.value = "";
+        setFile(null);
+      } else {
+        setFile(selectedFile);
+      }
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!file) {
-      console.error("No file selected");
-      return;
-    }
-
-    if (!file || !title || !tagId) {
+    if (!file || !title || !categoryId || !tagId) {
       alert("Please fill in all fields.");
       return;
     }
@@ -74,7 +128,6 @@ const UploadComponent = () => {
         const result = await response.json();
         console.log("File uploaded successfully:", result);
 
-        // Display success popup
         MySwal.fire({
           title: "Success!",
           text: "File uploaded successfully!",
@@ -86,9 +139,9 @@ const UploadComponent = () => {
           buttonsStyling: false,
         });
 
-        // Reset form state
         setFile(null);
         setTitle("");
+        setCategoryId("");
         setTagId("");
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
@@ -148,22 +201,69 @@ const UploadComponent = () => {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Input your title for certificate"
-            className="input input-bordered w-full "
+            className="input input-bordered w-full"
             required
           />
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-[200px] justify-between"
+              >
+                {categoryId
+                  ? categories.find((category) => category.id === categoryId)
+                      ?.label
+                  : "Select framework..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0">
+              <Command>
+                <CommandInput placeholder="Search framework..." />
+                <CommandEmpty>No framework found.</CommandEmpty>
+                <CommandGroup>
+                  {categories.map((category) => (
+                    <CommandItem
+                      key={category.id}
+                      value={category.id}
+                      onSelect={() => {
+                        setCategoryId(category.id);
+                        setOpen(false);
+                      }}
+                    >
+                      {category.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <select
+            name="categoryId"
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            className="select select-bordered w-full"
+            required
+          >
+            <option value="">Select Category</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
           <select
             name="tagId"
             value={tagId}
-            onChange={(e) => {
-              setTagId(e.target.value);
-              console.log(e.target.value);
-            }}
-            className=" select select-bordered w-full "
+            onChange={(e) => setTagId(e.target.value)}
+            className="select select-bordered w-full"
             required
           >
             <option value="">Select Tag</option>
             {tags.map((tag) => (
-              <option key={tag.id} value={tag.tag_id}>
+              <option key={tag.id} value={tag.id}>
                 {tag.name}
               </option>
             ))}
@@ -173,7 +273,7 @@ const UploadComponent = () => {
             name="file"
             ref={fileInputRef}
             onChange={handleFileChange}
-            className="file-input file-input-bordered w-full "
+            className="file-input file-input-bordered w-full"
             required
           />
           <button

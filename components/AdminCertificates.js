@@ -8,7 +8,6 @@ const AdminCertificates = () => {
   const [loading, setLoading] = useState(true);
   const [loadingImage, setLoadingImage] = useState(false);
   const [error, setError] = useState(null);
-  const [previewImage, setPreviewImage] = useState(null);
   const [previewPDF, setPreviewPDF] = useState(null);
   const [tags, setTags] = useState([]);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -155,8 +154,10 @@ const AdminCertificates = () => {
             <tr>
               <th className="py-2">Tag</th>
               <th className="py-2">Poin</th>
-              <th className="py-2">Time</th>
-              <th className="py-2">Full Name</th>
+              <th className="py-2">Tanggal</th>
+              <th className="py-2">Waktu</th>
+              <th className="py-2">Tanggal Kegiatan</th>
+              <th className="py-2">Nama Lengkap</th>
               <th className="py-2">NIM</th>
               <th className="py-2">Actions</th>
             </tr>
@@ -174,10 +175,23 @@ const AdminCertificates = () => {
                   {getTagValue(certificate.tag_id)}
                 </td>
                 <td className="border px-4 py-2">
-                  {new Date(certificate.time_stamp).toLocaleString({
-                    hour12: false,
-                  })}
+                  {new Date(certificate.time_stamp).toLocaleDateString(
+                    "en-GB",
+                    {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    }
+                  )}
                 </td>
+
+                <td className="border px-4 py-2">
+                  {new Date(certificate.time_stamp).toLocaleTimeString(
+                    "en-US",
+                    { hour: "2-digit", minute: "2-digit", hour12: false }
+                  )}
+                </td>
+                <td className="border px-4 py-2">N/A</td>
                 <td className="border px-4 py-2">
                   {certificate.user.full_name}
                 </td>
@@ -213,39 +227,6 @@ const AdminCertificates = () => {
       </div>
 
       {/* Modal for image preview */}
-      {previewImage && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center">
-          <div className="bg-slate-50 items-center p-5 w-[500px] justify-center  rounded-lg ">
-            {loadingImage && (
-              <div className="flex items-center justify-center h-screen bg-slate-50">
-                <span className="loading loading-ring loading-lg"></span>
-              </div>
-            )}
-
-            <div className=" flex flex-col justify-center items-center">
-              {loadingImage && (
-                <div className="flex items-center justify-center h-screen bg-slate-50">
-                  <span className="loading loading-ring loading-lg"></span>
-                </div>
-              )}
-              <h2 className="font-semibold mb-2 text-center">
-                Image Certificate
-              </h2>
-              <img
-                src={previewImage}
-                alt="Certificate Preview"
-                className="object-cover w-60"
-                onLoad={() => setLoadingImage(false)}
-              />
-            </div>
-            <div className=" w-full flex justify-end">
-              <button className="btn" onClick={() => setPreviewImage(null)}>
-                close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {previewPDF && (
         <div className="fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center ">

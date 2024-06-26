@@ -25,7 +25,12 @@ const CertificatesUser = () => {
         throw new Error("Failed to fetch certificates");
       }
       const data = await response.json();
-      setCertificates(data.certificates);
+      const sortedCertificates = data.certificates.sort((a, b) => {
+        const statusOrder = { pending: 1, reject: 2, approve: 3 };
+        return statusOrder[a.status] - statusOrder[b.status];
+      });
+
+      setCertificates(sortedCertificates);
       setLoadingCertificates(false);
     } catch (error) {
       setErrorCertificates(error.message);
@@ -165,40 +170,6 @@ const CertificatesUser = () => {
           </tbody>
         </table>
       </div>
-      {previewImage && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center">
-          <div className="bg-slate-50 items-center p-5 w-[500px] justify-center  rounded-lg ">
-            {loadingImage && (
-              <div className="flex items-center justify-center h-screen bg-slate-50">
-                <span className="loading loading-ring loading-lg"></span>
-              </div>
-            )}
-
-            <div className=" flex flex-col justify-center items-center">
-              {loadingImage && (
-                <div className="flex items-center justify-center h-screen bg-slate-50">
-                  <span className="loading loading-ring loading-lg"></span>
-                </div>
-              )}
-              <h2 className="font-semibold mb-2 text-center">
-                Image Certificate
-              </h2>
-              <img
-                src={previewImage}
-                alt="Certificate Preview"
-                className="object-cover w-60"
-                onLoad={() => setLoadingImage(false)}
-              />
-            </div>
-            <div className=" w-full flex justify-end">
-              <button className="btn" onClick={() => setPreviewImage(null)}>
-                close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {previewPDF && (
         <div className="fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center ">
           <div className="bg-white items-center p-5 w-[500] justify-center rounded-lg">
