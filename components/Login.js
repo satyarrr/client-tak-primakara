@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 const Login = () => {
   const [nim, setNim] = useState("");
@@ -67,7 +69,7 @@ const Login = () => {
               >
                 NIM
               </label>
-              <input
+              <Input
                 type="text"
                 id="nim"
                 className="input input-bordered w-full"
@@ -84,7 +86,7 @@ const Login = () => {
               >
                 Password
               </label>
-              <input
+              <Input
                 type="password"
                 id="password"
                 className="input input-bordered w-full"
@@ -95,9 +97,9 @@ const Login = () => {
               />
             </div>
             <div className="flex items-center justify-between">
-              <button type="submit" className="btn w-full">
+              <Button type="submit" className="btn w-full">
                 Sign In
-              </button>
+              </Button>
             </div>
           </form>
         </div>

@@ -1,11 +1,11 @@
 "use client";
 
-import useAuthentication from "../hooks/useAuthentication";
+import useAuthentication from "@/hooks/useAuthentication";
 import React, { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
-import { cn } from "@/client/lib/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -13,12 +13,15 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ChevronsUpDown } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 const MySwal = withReactContent(Swal);
 
@@ -48,13 +51,14 @@ const UploadComponent = () => {
   const fetchCategories = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/categories`
+        `${process.env.NEXT_PUBLIC_API_URL}/categories`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
       console.log("Fetched categories:", data); // Debugging line
+
       setCategories(Array.isArray(data) ? data : []); // Ensure data is an array
     } catch (error) {
       console.error("Could not fetch categories:", error);
@@ -65,7 +69,7 @@ const UploadComponent = () => {
   const fetchTags = async (categoryId) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/categories/${categoryId}/tags`
+        `${process.env.NEXT_PUBLIC_API_URL}/categories/${categoryId}/tags`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -121,7 +125,7 @@ const UploadComponent = () => {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       if (response.ok) {
@@ -194,8 +198,9 @@ const UploadComponent = () => {
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-700">
           Upload Certificate
         </h2>
+
         <div className="flex flex-col space-y-4">
-          <input
+          <Input
             type="text"
             name="title"
             value={title}
@@ -204,43 +209,45 @@ const UploadComponent = () => {
             className="input input-bordered w-full"
             required
           />
-          <Popover open={open} onOpenChange={setOpen}>
+
+          <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 role="combobox"
-                aria-expanded={open}
-                className="w-[200px] justify-between"
+                className="w-full justify-between"
               >
                 {categoryId
-                  ? categories.find((category) => category.id === categoryId)
-                      ?.label
-                  : "Select framework..."}
+                  ? categories.find(
+                      (category) => category.category_id === categoryId,
+                    )?.name
+                  : "Select category..."}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
+            <PopoverContent className="w-full justify-start p-0">
               <Command>
                 <CommandInput placeholder="Search framework..." />
-                <CommandEmpty>No framework found.</CommandEmpty>
-                <CommandGroup>
-                  {categories.map((category) => (
-                    <CommandItem
-                      key={category.id}
-                      value={category.id}
-                      onSelect={() => {
-                        setCategoryId(category.id);
-                        setOpen(false);
-                      }}
-                    >
-                      {category.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+                <CommandList>
+                  <CommandEmpty>No category found.</CommandEmpty>
+                  <CommandGroup>
+                    {categories?.map((category) => (
+                      <CommandItem
+                        key={category.category_id}
+                        value={category.category_id}
+                        onSelect={() => {
+                          setCategoryId(category.category_id);
+                        }}
+                      >
+                        {category.name}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
               </Command>
             </PopoverContent>
           </Popover>
-          <select
+          {/* <select
             name="categoryId"
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
@@ -249,11 +256,11 @@ const UploadComponent = () => {
           >
             <option value="">Select Category</option>
             {categories.map((category) => (
-              <option key={category.id} value={category.id}>
+              <option key={category.category_id} value={category.category_id}>
                 {category.name}
               </option>
             ))}
-          </select>
+          </select> */}
           <select
             name="tagId"
             value={tagId}
