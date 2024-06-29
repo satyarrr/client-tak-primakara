@@ -2,6 +2,30 @@
 import React, { useState, useEffect } from "react";
 import useAuthentication from "../hooks/useAuthentication";
 
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import { Button } from "@/components/ui/button";
+
 const MahasiswaList = () => {
   const { user } = useAuthentication();
   const [mahasiswa, setMahasiswa] = useState([]);
@@ -81,14 +105,15 @@ const MahasiswaList = () => {
         `${process.env.NEXT_PUBLIC_API_URL}/user/${user.user_id}/mahasiswa`
       );
       if (!response.ok) {
-        throw new Error("Failed to fetch points data");
+        throw new Error("Failed to fetch data");
       }
       const data = await response.json();
-      setSelectedUser({ ...user, totalPoints: data.user.totalPoints });
+      setSelectedUser({ ...user, totalPoints: data.totalPoints });
       setShowModal(true);
     } catch (error) {
-      console.error("Error fetching points data:", error.message);
+      console.error("Error fetching data:", error.message);
       // Handle the error appropriately, such as showing a message to the user
+      // Example: setErrorState("Failed to fetch user data. Please try again later.");
     }
   };
 
@@ -217,15 +242,18 @@ const MahasiswaList = () => {
               <td className="py-2 px-4 text-center">{user.nim}</td>
               <td className="py-2 px-4 text-center">{user.totalPoints}</td>
               <td className="py-2 px-4 text-center">
-                <button onClick={() => handleDetailClick(user)} className="btn">
+                <Button
+                  onClick={() => handleDetailClick(user)}
+                  className=" bg-slate-600"
+                >
                   Detail
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => handleCertificatesClick(user)}
                   className="btn ml-2"
                 >
                   Certificates
-                </button>
+                </Button>
               </td>
             </tr>
           ))}
@@ -252,21 +280,27 @@ const MahasiswaList = () => {
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                     <h3 className="text-lg leading-6 font-medium text-gray-900 mb-2">
                       Detail Poin
                     </h3>
-                    {/* Render points data here */}
-                    <ul className="list-disc list-inside">
-                      {Object.entries(selectedUser.totalPoints).map(
-                        ([category, points]) => (
-                          <li key={category} className="mb-2 text-gray-700">
-                            <span className="font-semibold">{category}:</span>{" "}
-                            {points}
-                          </li>
-                        )
-                      )}
-                    </ul>
+                    {selectedUser && selectedUser.totalPoints && (
+                      <div className="space-y-2 text-gray-700">
+                        {Object.entries(selectedUser.totalPoints).map(
+                          ([category, pointsObj]) => (
+                            <div>
+                              <div key={category} className="">
+                                <span className="font-semibold">
+                                  {category}:
+                                </span>{" "}
+                              </div>
+                              Points: {pointsObj.points}, Minimum Points:{" "}
+                              {pointsObj.min_point}
+                            </div>
+                          )
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -372,8 +406,8 @@ const MahasiswaList = () => {
                                 >
                                   Detail
                                 </button>
-                                <button
-                                  className="btn ml-2"
+                                <Button
+                                  className="bg-[#ee6363] ml-2"
                                   onClick={() =>
                                     handleDeleteCertificate(
                                       certificate.cert_id,
@@ -382,7 +416,7 @@ const MahasiswaList = () => {
                                   }
                                 >
                                   Delete
-                                </button>
+                                </Button>
                               </td>
                             </tr>
                           ))}

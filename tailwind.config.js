@@ -2,13 +2,27 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{js,jsx}',
-    './components/**/*.{js,jsx}',
-    './app/**/*.{js,jsx}',
-    './src/**/*.{js,jsx}',
+    "./pages/**/*.{js,jsx}",
+    "./components/**/*.{js,jsx}",
+    "./app/**/*.{js,jsx}",
+    "./src/**/*.{js,jsx}",
   ],
   prefix: "",
   theme: {
+    extend: {
+      fontFamily: {
+        sans: ["XDPrime", "sans-serif"],
+      },
+    },
+    // extend: {
+    //   colors: {
+    //     rimary: {
+    //       DEFAULT: "#004680",
+    //       hover: "#005194",
+    //       pressed: "#0060B4",
+    //     },
+    //   },
+    // },
     container: {
       center: true,
       padding: "2rem",
@@ -74,4 +88,4 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+};

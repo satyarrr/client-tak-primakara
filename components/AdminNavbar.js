@@ -56,7 +56,14 @@ const AdminNavbar = () => {
                     Create Tag
                   </span>
                 </Link>
-
+                <Link
+                  href="/dashboard-admin/create-activity"
+                  className=" flex  items-center"
+                >
+                  <span className="  hover:bg-slate-200  py-2 rounded-md text-sm font-medium cursor-pointer">
+                    Create Activity
+                  </span>
+                </Link>
                 <Link
                   href="/dashboard-admin/upload-many"
                   className=" flex  items-center"

@@ -1,15 +1,23 @@
 "use client";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import useAuthentication from "../hooks/useAuthentication";
 
 const CreateCategorie = () => {
   const { user } = useAuthentication();
   const [categoryName, setCategoryName] = useState("");
+  const [minPoint, setMinPoint] = useState(""); // State for min_point
   const [error, setError] = useState(null);
+
   const handleCategoryNameChange = (e) => {
     setCategoryName(e.target.value);
   };
+
+  const handleMinPointChange = (e) => {
+    setMinPoint(e.target.value);
+  };
+
   const handleSubmitCategory = async (e) => {
     e.preventDefault();
     try {
@@ -22,6 +30,7 @@ const CreateCategorie = () => {
           },
           body: JSON.stringify({
             name: categoryName,
+            min_point: minPoint, // Include min_point in the request body
           }),
         }
       );
@@ -29,6 +38,7 @@ const CreateCategorie = () => {
         throw new Error("Failed to create category");
       }
       setCategoryName("");
+      setMinPoint(""); // Clear minPoint after successful submission
       setError(null);
       alert("Category created successfully!");
     } catch (error) {
@@ -43,6 +53,7 @@ const CreateCategorie = () => {
       </div>
     );
   }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 pt-8">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mb-96">
@@ -51,19 +62,32 @@ const CreateCategorie = () => {
         </h3>
         <form onSubmit={handleSubmitCategory}>
           <div className="mb-4">
-            <input
+            <Input
               type="text"
               id="categoryName"
               value={categoryName}
-              placeholder="input category name"
+              placeholder="Input category name"
               onChange={handleCategoryNameChange}
               className="input input-bordered w-full mt-3"
               required
             />
           </div>
-          <button type="submit" className="btn w-full">
+
+          <div className="mb-4">
+            <Input
+              type="number" // Assuming min_point is numeric, adjust type as needed
+              id="minPoint"
+              value={minPoint}
+              placeholder="Input minimum points"
+              onChange={handleMinPointChange}
+              className="input input-bordered w-full mt-3"
+              required
+            />
+          </div>
+
+          <Button type="submit" className="btn w-full">
             Create Category
-          </button>
+          </Button>
         </form>
       </div>
     </div>

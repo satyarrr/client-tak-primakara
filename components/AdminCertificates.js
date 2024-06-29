@@ -154,7 +154,7 @@ const AdminCertificates = () => {
             <tr>
               <th className="py-2">Tag</th>
               <th className="py-2">Poin</th>
-              <th className="py-2">Tanggal</th>
+              <th className="py-2">Tanggal Pegiriman</th>
               <th className="py-2">Waktu</th>
               <th className="py-2">Tanggal Kegiatan</th>
               <th className="py-2">Nama Lengkap</th>
@@ -191,7 +191,9 @@ const AdminCertificates = () => {
                     { hour: "2-digit", minute: "2-digit", hour12: false }
                   )}
                 </td>
-                <td className="border px-4 py-2">N/A</td>
+                <td className="border px-4 py-2">
+                  {certificate.activity_date}
+                </td>
                 <td className="border px-4 py-2">
                   {certificate.user.full_name}
                 </td>
@@ -227,7 +229,6 @@ const AdminCertificates = () => {
       </div>
 
       {/* Modal for image preview */}
-
       {previewPDF && (
         <div className="fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center ">
           <div className="bg-white items-center p-5 w-[500] justify-center rounded-lg">

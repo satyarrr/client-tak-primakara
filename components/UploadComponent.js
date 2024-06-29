@@ -3,7 +3,9 @@
 import useAuthentication from "@/hooks/useAuthentication";
 import React, { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
+import { format } from "date-fns";
 import withReactContent from "sweetalert2-react-content";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -15,6 +17,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
@@ -29,12 +32,18 @@ const UploadComponent = () => {
   const { user } = useAuthentication();
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState("");
+  const [activityDate, setActivityDate] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [tagId, setTagId] = useState("");
-  const [categories, setCategories] = useState([]); // Initialize as empty array
-  const [tags, setTags] = useState([]); // Initialize as empty array
+  const [activityId, setActivityId] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [activities, setActivities] = useState([]);
+  const [tags, setTags] = useState([]);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const [openCategory, setOpenCategory] = useState(false);
+  const [openSubActivity, setOpenSubActivity] = useState(false);
+  const [openActivity, setOpenActivity] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -42,16 +51,24 @@ const UploadComponent = () => {
 
   useEffect(() => {
     if (categoryId) {
-      fetchTags(categoryId);
+      fetchActivities(categoryId);
     } else {
-      setTags([]); // Reset tags when no category is selected
+      setActivities([]); // Reset activities when no category is selected
     }
   }, [categoryId]);
+
+  useEffect(() => {
+    if (activityId) {
+      fetchTags(activityId);
+    } else {
+      setTags([]); // Reset tags when no activity is selected
+    }
+  }, [activityId]);
 
   const fetchCategories = async () => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/categories`,
+        `${process.env.NEXT_PUBLIC_API_URL}/categories`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -66,10 +83,27 @@ const UploadComponent = () => {
     }
   };
 
-  const fetchTags = async (categoryId) => {
+  const fetchActivities = async (categoryId) => {
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/categories/${categoryId}/tags`,
+        `${process.env.NEXT_PUBLIC_API_URL}/categories/${categoryId}/activities`
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("Fetched activities:", data); // Debugging line
+      setActivities(Array.isArray(data) ? data : []); // Ensure data is an array
+    } catch (error) {
+      console.error("Could not fetch activities:", error);
+      setActivities([]); // Set to empty array on error
+    }
+  };
+
+  const fetchTags = async (activityId) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/activities/${activityId}/tags`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -118,6 +152,7 @@ const UploadComponent = () => {
     formData.append("title", title);
     formData.append("tag_id", tagId);
     formData.append("user_id", user?.user_id);
+    formData.append("activity_date", activityDate);
 
     try {
       const response = await fetch(
@@ -125,7 +160,7 @@ const UploadComponent = () => {
         {
           method: "POST",
           body: formData,
-        },
+        }
       );
 
       if (response.ok) {
@@ -146,7 +181,9 @@ const UploadComponent = () => {
         setFile(null);
         setTitle("");
         setCategoryId("");
+        setActivityId("");
         setTagId("");
+        setActivityDate("");
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
@@ -213,14 +250,40 @@ const UploadComponent = () => {
           <Popover>
             <PopoverTrigger asChild>
               <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !activityDate && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {activityDate ? (
+                  format(activityDate, "PPP")
+                ) : (
+                  <span>Date Activity</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={activityDate}
+                onSelect={setActivityDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+
+          <Popover open={openCategory} onOpenChange={setOpenCategory}>
+            <PopoverTrigger asChild>
+              <Button
                 variant="outline"
                 role="combobox"
                 className="w-full justify-between"
               >
                 {categoryId
-                  ? categories.find(
-                      (category) => category.category_id === categoryId,
-                    )?.name
+                  ? categories.find((category) => category.id === categoryId)
+                      ?.name
                   : "Select category..."}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
@@ -233,10 +296,11 @@ const UploadComponent = () => {
                   <CommandGroup>
                     {categories?.map((category) => (
                       <CommandItem
-                        key={category.category_id}
-                        value={category.category_id}
+                        key={category.id}
+                        value={category.id}
                         onSelect={() => {
-                          setCategoryId(category.category_id);
+                          setCategoryId(category.id);
+                          setOpenCategory(false);
                         }}
                       >
                         {category.name}
@@ -247,35 +311,85 @@ const UploadComponent = () => {
               </Command>
             </PopoverContent>
           </Popover>
-          {/* <select
-            name="categoryId"
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="select select-bordered w-full"
-            required
-          >
-            <option value="">Select Category</option>
-            {categories.map((category) => (
-              <option key={category.category_id} value={category.category_id}>
-                {category.name}
-              </option>
-            ))}
-          </select> */}
-          <select
-            name="tagId"
-            value={tagId}
-            onChange={(e) => setTagId(e.target.value)}
-            className="select select-bordered w-full"
-            required
-          >
-            <option value="">Select Tag</option>
-            {tags.map((tag) => (
-              <option key={tag.id} value={tag.id}>
-                {tag.name}
-              </option>
-            ))}
-          </select>
-          <input
+
+          <Popover open={openActivity} onOpenChange={setOpenActivity}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                className="w-full justify-between"
+                disabled={!categoryId}
+              >
+                {activityId
+                  ? activities.find((activity) => activity.id === activityId)
+                      ?.name
+                  : "Select activity..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full justify-start p-0">
+              <Command>
+                <CommandInput placeholder="Search activity..." />
+                <CommandList>
+                  <CommandEmpty>No activity found.</CommandEmpty>
+                  <CommandGroup>
+                    {activities?.map((activity) => (
+                      <CommandItem
+                        key={activity.id}
+                        value={activity.id}
+                        onSelect={() => {
+                          setActivityId(activity.id);
+                          setOpenActivity(false);
+                        }}
+                      >
+                        {activity.name}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+
+          <Popover open={openSubActivity} onOpenChange={setOpenSubActivity}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                className="w-full justify-between"
+                disabled={!activityId}
+              >
+                {tagId
+                  ? tags.find((tag) => tag.id === tagId)?.name
+                  : "Select sub activity..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-full justify-start p-0">
+              <Command>
+                <CommandInput placeholder="Search sub activity..." />
+                <CommandList>
+                  <CommandEmpty>No Sub Activity Found</CommandEmpty>
+                  <CommandGroup>
+                    {tags?.map((tag) => (
+                      <CommandItem
+                        key={tag.id}
+                        value={tag.id}
+                        onSelect={() => {
+                          setTagId(tag.id);
+                          setOpenSubActivity(false);
+                        }}
+                      >
+                        {tag.name}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+
+          <Input
             type="file"
             name="file"
             ref={fileInputRef}
@@ -283,15 +397,15 @@ const UploadComponent = () => {
             className="file-input file-input-bordered w-full"
             required
           />
-          <button
+          <Button
             type="submit"
             disabled={uploading}
-            className={`btn ${
+            className={`bg-[#004680] hover:bg-[#005194] active:bg-[#0060B4]  ${
               uploading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             {uploading ? "Uploading..." : "Upload File"}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
