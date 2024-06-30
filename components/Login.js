@@ -97,7 +97,7 @@ const Login = () => {
               />
             </div>
             <div className="flex items-center justify-between">
-              <Button type="submit" className="btn w-full">
+              <Button type="submit" className="text-white w-full">
                 Sign In
               </Button>
             </div>

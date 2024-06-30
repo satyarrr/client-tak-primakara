@@ -1,5 +1,17 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import localFont from "next/font/local";
+
+// const xdprime = localFont({
+//   src:[{
+//     path:"../../public/fonts/XDPrime-Regular.otf",
+//     weight: "700"
+//   }
+
+//   ] ,
+
+//   variable: "--font-xdprime",
+// });
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,7 +23,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.variable}>{children}</body>
     </html>
   );
 }

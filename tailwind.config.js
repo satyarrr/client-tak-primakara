@@ -9,11 +9,6 @@ module.exports = {
   ],
   prefix: "",
   theme: {
-    extend: {
-      fontFamily: {
-        sans: ["XDPrime", "sans-serif"],
-      },
-    },
     // extend: {
     //   colors: {
     //     rimary: {
@@ -31,6 +26,11 @@ module.exports = {
       },
     },
     extend: {
+      fontFamily: {
+        xdprime: ["var(--font-xdprime)"],
+        // mono: ["Roboto Mono", "monospace"],
+      },
+
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -38,8 +38,9 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#004680",
+          hover: "#005194",
+          pressed: "#0060B4",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
