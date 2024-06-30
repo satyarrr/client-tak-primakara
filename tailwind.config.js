@@ -27,7 +27,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        xdprime: ["var(--font-xdprime)"],
+        sans: ["var(--font-xdprime)", "sans-serif"],
         // mono: ["Roboto Mono", "monospace"],
       },
 

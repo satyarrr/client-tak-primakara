@@ -2,22 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  @font-face {
-    font-family: "XDPrime";
-    src: url("/fonts/XDPrime-Regular.otf") format("opentype");
-    font-weight: normal;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: "XDPrime";
-    src: url("/fonts/XDPrime-Bold.otf") format("opentype");
-    font-weight: bold;
-    font-style: normal;
-  }
+/* @font-face {
+  font-family: "XDPrime";
+  src: url("/fonts/XDPrime-Regular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "XDPrime";
+  src: url("/fonts/XDPrime-Bold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+} */
 
+@layer base {
   :root {
-    --font-xdprime: "XDPrime", sans-serif;
+    /* --font-xdprime: "XDPrime", sans-serif; */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 

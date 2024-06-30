@@ -2,18 +2,22 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import localFont from "next/font/local";
 
-// const xdprime = localFont({
-//   src:[{
-//     path:"../../public/fonts/XDPrime-Regular.otf",
-//     weight: "700"
-//   }
+const XDPrime = localFont({
+  src: [
+    {
+      path: "../public/fonts/XDPrime-Regular.otf",
+      weight: "400",
+    },
+    {
+      path: "../public/fonts/XDPrime-Bold.otf",
+      weight: "700",
+    },
+  ],
+  display: "swap",
+  variable: "--font-xdprime",
+});
 
-//   ] ,
-
-//   variable: "--font-xdprime",
-// });
-
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata = {
   title: "Create Next App",
@@ -23,7 +27,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.variable}>{children}</body>
+      {/* 
+        1. Initialize the global variable into css
+        2. Add font-sans class to apply the custom font-family
+      */}
+      <body className={`${XDPrime.variable} ${inter.variable} font-sans`}>
+        {children}
+      </body>
     </html>
   );
 }
