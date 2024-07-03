@@ -3,6 +3,18 @@ import React from "react";
 import useAuthentication from "../hooks/useAuthentication";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuIndicator,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  NavigationMenuViewport,
+} from "@/components/ui/navigation-menu";
+
+import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
 
 const AdminNavbar = () => {
   const { logout } = useAuthentication();
@@ -13,6 +25,7 @@ const AdminNavbar = () => {
         <div className="flex justify-between h-16">
           <div className=" flex items-center">
             <Image
+              priority={true}
               src="/primakara-logo.png"
               width={100}
               height={500}
@@ -21,67 +34,137 @@ const AdminNavbar = () => {
             <span className="font-bold text-lg">TAK Primakara</span>
           </div>
 
-          <div className=" flex mr-16 mt-4">
-            <details className=" dropdown ">
-              <summary className="cursor-pointer hover:bg-slate-200  py-2 rounded-md text-sm font-medium">
-                Menu
-              </summary>
-              <div className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
-                <Link href="/dashboard-admin" className=" flex items-center">
-                  <span className="  hover:bg-slate-200  py-2 rounded-md text-sm font-medium cursor-pointer">
-                    Dashboard
-                  </span>
-                </Link>
-                <Link
-                  href="/dashboard-admin/mahasiswa-list"
-                  className=" flex items-center"
-                >
-                  <span className="  hover:bg-slate-200  py-2 rounded-md text-sm font-medium cursor-pointer">
-                    Student List
-                  </span>
-                </Link>
-                <Link
-                  className="flex items-center"
-                  href="/dashboard-admin/create-category"
-                >
-                  <span className="  hover:bg-slate-200  py-2 rounded-md text-sm font-medium cursor-pointer">
-                    Create Category
-                  </span>
-                </Link>
-                <Link
-                  href="/dashboard-admin/create-tag"
-                  className=" flex items-center"
-                >
-                  <span className=" hover:bg-slate-200  py-2 rounded-md items-center text-sm font-medium cursor-pointer">
-                    Create Tag
-                  </span>
-                </Link>
-                <Link
-                  href="/dashboard-admin/create-activity"
-                  className=" flex  items-center"
-                >
-                  <span className="  hover:bg-slate-200  py-2 rounded-md text-sm font-medium cursor-pointer">
-                    Create Activity
-                  </span>
-                </Link>
-                <Link
-                  href="/dashboard-admin/upload-many"
-                  className=" flex  items-center"
-                >
-                  <span className="  hover:bg-slate-200  py-2 rounded-md text-sm font-medium cursor-pointer">
-                    Upload Xlsx
-                  </span>
-                </Link>
-                <span className=" flex flex-shrink-0 items-center cursor-pointer   py-2 rounded-md text-sm font-medium">
-                  <button
-                    onClick={logout}
-                    className="hover:bg-slate-200 rounded-md font-medium py-2 text-sm"
-                  >
-                    Logout
-                  </button>
+          <div className=" flex mr-4">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Management TAK</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <Link
+                      href="/dashboard-admin/management"
+                      legacyBehavior
+                      passHref
+                    >
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        Management TAK
+                      </NavigationMenuLink>
+                    </Link>
+                    <Link
+                      href="/dashboard-admin/create-category"
+                      legacyBehavior
+                      passHref
+                    >
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        Create Category
+                      </NavigationMenuLink>
+                    </Link>
+                    <Link
+                      href="/dashboard-admin/create-activity"
+                      legacyBehavior
+                      passHref
+                    >
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        Create Activity
+                      </NavigationMenuLink>
+                    </Link>
+                    <Link
+                      href="/dashboard-admin/create-tag"
+                      legacyBehavior
+                      passHref
+                    >
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        Create Sub Activity
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Menu</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <Link
+                      href="/dashboard-admin/dashboard"
+                      legacyBehavior
+                      passHref
+                    >
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        Dashboard
+                      </NavigationMenuLink>
+                    </Link>
+                    <Link
+                      href="/dashboard-admin/approval-page"
+                      legacyBehavior
+                      passHref
+                    >
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        Approval Menu
+                      </NavigationMenuLink>
+                    </Link>
+                    <Link
+                      href="/dashboard-admin/mahasiswa-list"
+                      legacyBehavior
+                      passHref
+                    >
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        Mahasiswa List
+                      </NavigationMenuLink>
+                    </Link>
+                    <button
+                      onClick={logout}
+                      className="hover:bg-slate-200 rounded-md font-medium p-4  text-sm"
+                    >
+                      Logout
+                    </button>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+
+            {/* <Link href="/dashboard-admin" className=" flex items-center">
+              <span className="  hover:bg-slate-200 ">Dashboard</span>
+            </Link>
+            <Link
+              href="/dashboard-admin/mahasiswa-list"
+              className=" flex items-center"
+            >
+              <span className="  hover:bg-slate-200 ">Student List</span>
+            </Link>
+            <div className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+              <Link
+                href="/dashboard-admin/upload-many"
+                className=" flex  items-center"
+              >
+                <span className="  hover:bg-slate-200  py-2 rounded-md text-sm font-medium cursor-pointer">
+                  Upload Xlsx
                 </span>
-              </div>
-            </details>
+              </Link>
+              <span className=" flex flex-shrink-0 items-center cursor-pointer   py-2 rounded-md text-sm font-medium">
+                <button
+                  onClick={logout}
+                  className="hover:bg-slate-200 rounded-md font-medium py-2 text-sm"
+                >
+                  Logout
+                </button>
+              </span>
+            </div> */}
           </div>
         </div>
       </div>

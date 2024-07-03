@@ -3,13 +3,7 @@
 import useAuthentication from "../hooks/useAuthentication";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  BiSortAlt2,
-  BiSortUp,
-  BiSortDown,
-  BiSolidTrashAlt,
-  BiZoomIn,
-} from "react-icons/bi";
+import { BiSortAlt2, BiSortUp, BiSortDown, BiZoomIn } from "react-icons/bi";
 import { BsEye } from "react-icons/bs";
 
 const CertificatesUser = () => {

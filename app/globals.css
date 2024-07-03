@@ -14,7 +14,15 @@
   font-weight: bold;
   font-style: normal;
 } */
-
+.btn-primary {
+  @apply bg-[#004680] hover:bg-[#005194] active:bg-[#0060B4] text-white;
+}
+.btn-secondary {
+  @apply bg-[#149FA9] hover:bg-[#1C656E] active:bg-[#0C3840] text-white;
+}
+.btn-warning {
+  @apply bg-[#EE6363] text-white;
+}
 @layer base {
   :root {
     /* --font-xdprime: "XDPrime", sans-serif; */

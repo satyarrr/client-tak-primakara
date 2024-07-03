@@ -394,7 +394,7 @@ const UploadComponent = () => {
             name="file"
             ref={fileInputRef}
             onChange={handleFileChange}
-            className="file-input file-input-bordered w-full"
+            className=" w-full"
             required
           />
           <Button

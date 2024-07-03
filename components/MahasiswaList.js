@@ -229,10 +229,10 @@ const MahasiswaList = () => {
       <table className="w-full">
         <thead>
           <tr className="bg-gray-200">
-            <th className="py-2 px-4">Nama</th>
+            <th className="py-2 px-4">Name</th>
             <th className="py-2 px-4 text-center">NIM</th>
-            <th className="py-2 px-4 text-center">Total Poin TAK</th>
-            <th className="py-2 px-4 text-center">Aksi</th>
+            <th className="py-2 px-4 text-center">Total Points</th>
+            <th className="py-2 px-4 text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -244,13 +244,13 @@ const MahasiswaList = () => {
               <td className="py-2 px-4 text-center">
                 <Button
                   onClick={() => handleDetailClick(user)}
-                  className=" bg-slate-600"
+                  className=" btn-primary"
                 >
                   Detail
                 </Button>
                 <Button
                   onClick={() => handleCertificatesClick(user)}
-                  className="btn ml-2"
+                  className="btn-primary ml-2"
                 >
                   Certificates
                 </Button>
@@ -305,9 +305,9 @@ const MahasiswaList = () => {
                 </div>
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button onClick={closeModal} className="btn">
+                <Button onClick={closeModal} className="btn-primary">
                   Tutup
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -327,9 +327,7 @@ const MahasiswaList = () => {
             <span
               className="hidden sm:inline-block sm:align-middle sm:h-screen"
               aria-hidden="true"
-            >
-              &#8203;
-            </span>
+            ></span>
 
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
@@ -390,22 +388,22 @@ const MahasiswaList = () => {
                                   .join(", ")}
                               </td>
                               <td className="border border-gray-200 text-center flex gap-2 py-2">
-                                <button
-                                  className="btn ml-4"
+                                <Button
+                                  className="btn-primary ml-4"
                                   onClick={() =>
                                     handlePreview(certificate.file_path)
                                   }
                                 >
                                   Preview
-                                </button>
-                                <button
-                                  className="btn"
+                                </Button>
+                                <Button
+                                  className="btn-primary"
                                   onClick={() =>
                                     handleOpenReasonModal(certificate.reason)
                                   }
                                 >
                                   Detail
-                                </button>
+                                </Button>
                                 <Button
                                   className="bg-[#ee6363] ml-2"
                                   onClick={() =>
