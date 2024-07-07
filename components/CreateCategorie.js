@@ -1,14 +1,20 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Spiner from "@/components/ui/Loading";
 import useAuthentication from "../hooks/useAuthentication";
 
 const CreateCategorie = () => {
   const { user } = useAuthentication();
   const [categoryName, setCategoryName] = useState("");
-  const [minPoint, setMinPoint] = useState(""); // State for min_point
+  const [minPoint, setMinPoint] = useState("");
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setLoading(false);
+  }, []);
 
   const handleCategoryNameChange = (e) => {
     setCategoryName(e.target.value);
@@ -20,6 +26,7 @@ const CreateCategorie = () => {
 
   const handleSubmitCategory = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/categories`,
@@ -30,7 +37,7 @@ const CreateCategorie = () => {
           },
           body: JSON.stringify({
             name: categoryName,
-            min_point: minPoint, // Include min_point in the request body
+            min_point: minPoint,
           }),
         }
       );
@@ -38,11 +45,13 @@ const CreateCategorie = () => {
         throw new Error("Failed to create category");
       }
       setCategoryName("");
-      setMinPoint(""); // Clear minPoint after successful submission
+      setMinPoint("");
       setError(null);
       alert("Category created successfully!");
     } catch (error) {
       setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,9 +62,19 @@ const CreateCategorie = () => {
       </div>
     );
   }
-
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <Spiner size="large" />
+      </div>
+    );
+  }
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 pt-8">
+    <div
+      className={`min-h-screen flex items-center justify-center bg-gray-100 ${
+        loading ? "opacity-0 pointer-events-none" : "opacity-100"
+      }`}
+    >
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mb-96">
         <h3 className="text-lg font-semibold mb-4 text-center">
           Create Category
@@ -75,7 +94,7 @@ const CreateCategorie = () => {
 
           <div className="mb-4">
             <Input
-              type="number" // Assuming min_point is numeric, adjust type as needed
+              type="number"
               id="minPoint"
               value={minPoint}
               placeholder="Input minimum points"
@@ -85,8 +104,12 @@ const CreateCategorie = () => {
             />
           </div>
 
-          <Button type="submit" className="btn w-full">
-            Create Category
+          <Button
+            type="submit"
+            className="btn-primary w-full"
+            disabled={loading}
+          >
+            {loading ? <Spiner /> : "Create Category"}
           </Button>
         </form>
       </div>

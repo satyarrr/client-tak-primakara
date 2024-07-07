@@ -17,7 +17,9 @@ const Management = () => {
   const toggleActivity = (activityId) => {
     setActiveActivity(activeActivity === activityId ? null : activityId);
   };
+
   const fetchData = async () => {
+    // Fetch data from the API
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/management`
@@ -30,6 +32,7 @@ const Management = () => {
   };
 
   useEffect(() => {
+    // Fetch data when component mounts
     fetchData();
   }, []);
 
@@ -62,16 +65,17 @@ const Management = () => {
 
     if (response.ok) {
       const updatedData = await response.json();
+      // Update data locally
       setData((prevData) => {
         if (type === "category") {
-          return prevData.map((cat) =>
-            cat.id === item.id ? updatedData.data[0] : cat
+          return prevData.map(
+            (cat) => (cat.id === item.id ? updatedData : cat) // Access updatedData correctly
           );
         } else if (type === "activity") {
           return prevData.map((cat) => ({
             ...cat,
-            activities: cat.activities.map((act) =>
-              act.id === item.id ? updatedData.data[0] : act
+            activities: cat.activities.map(
+              (act) => (act.id === item.id ? updatedData : act) // Access updatedData correctly
             ),
           }));
         } else if (type === "tag") {
@@ -79,14 +83,16 @@ const Management = () => {
             ...cat,
             activities: cat.activities.map((act) => ({
               ...act,
-              tags: act.tags.map((tag) =>
-                tag.id === item.id ? updatedData.data[0] : tag
+              tags: act.tags.map(
+                (tag) => (tag.id === item.id ? updatedData : tag) // Access updatedData correctly
               ),
             })),
           }));
         }
       });
+
       handleModalClose();
+      fetchData(); // Fetch data again after editing
     } else {
       console.error("Error editing", type);
     }

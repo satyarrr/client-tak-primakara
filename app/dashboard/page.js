@@ -8,7 +8,7 @@ import useAuthentication from "../../hooks/useAuthentication";
 
 const page = () => {
   return (
-    <div>
+    <div className="">
       <UserNavbar />
       <div className=" m-4">
         <MahasiswaPoints />

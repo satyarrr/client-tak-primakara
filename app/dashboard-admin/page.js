@@ -1,3 +1,4 @@
+import DashboardAdmin from "@/components/DashboardAdmin";
 import AdminCertificates from "../../components/AdminCertificates";
 import AdminNavbar from "../../components/AdminNavbar";
 
@@ -8,7 +9,7 @@ const page = () => {
     <>
       <AdminNavbar />
       <div className=" m-4 ">
-        <AdminCertificates />
+        <DashboardAdmin />
       </div>
     </>
   );

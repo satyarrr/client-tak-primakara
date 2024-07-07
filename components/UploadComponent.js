@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/popover";
 import { ChevronsUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import Spiner from "./ui/Loading";
 
 const MySwal = withReactContent(Swal);
 
@@ -44,6 +45,9 @@ const UploadComponent = () => {
   const [openCategory, setOpenCategory] = useState(false);
   const [openSubActivity, setOpenSubActivity] = useState(false);
   const [openActivity, setOpenActivity] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(false); // Loading state for categories
+  const [loadingActivities, setLoadingActivities] = useState(false); // Loading state for activities
+  const [loadingTags, setLoadingTags] = useState(false); // Loading state for tags
 
   useEffect(() => {
     fetchCategories();
@@ -66,6 +70,7 @@ const UploadComponent = () => {
   }, [activityId]);
 
   const fetchCategories = async () => {
+    setLoadingCategories(true);
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/categories`
@@ -76,14 +81,18 @@ const UploadComponent = () => {
       const data = await response.json();
       console.log("Fetched categories:", data); // Debugging line
 
-      setCategories(Array.isArray(data) ? data : []); // Ensure data is an array
+      const visibleCategories = data.filter((category) => category.is_visible);
+      setCategories(Array.isArray(visibleCategories) ? visibleCategories : []); // Ensure data is an array
     } catch (error) {
       console.error("Could not fetch categories:", error);
       setCategories([]); // Set to empty array on error
+    } finally {
+      setLoadingCategories(false);
     }
   };
 
   const fetchActivities = async (categoryId) => {
+    setLoadingActivities(true);
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/categories/${categoryId}/activities`
@@ -93,14 +102,19 @@ const UploadComponent = () => {
       }
       const data = await response.json();
       console.log("Fetched activities:", data); // Debugging line
-      setActivities(Array.isArray(data) ? data : []); // Ensure data is an array
+
+      const visibleActivities = data.filter((activity) => activity.is_visible);
+      setActivities(Array.isArray(visibleActivities) ? visibleActivities : []); // Ensure data is an array
     } catch (error) {
       console.error("Could not fetch activities:", error);
       setActivities([]); // Set to empty array on error
+    } finally {
+      setLoadingActivities(false);
     }
   };
 
   const fetchTags = async (activityId) => {
+    setLoadingTags(true);
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/activities/${activityId}/tags`
@@ -110,10 +124,14 @@ const UploadComponent = () => {
       }
       const data = await response.json();
       console.log("Fetched tags:", data); // Debugging line
-      setTags(Array.isArray(data) ? data : []); // Ensure data is an array
+
+      const visibleTags = data.filter((tag) => tag.is_visible);
+      setTags(Array.isArray(visibleTags) ? visibleTags : []); // Ensure data is an array
     } catch (error) {
       console.error("Could not fetch tags:", error);
       setTags([]); // Set to empty array on error
+    } finally {
+      setLoadingTags(false);
     }
   };
 
@@ -281,10 +299,14 @@ const UploadComponent = () => {
                 role="combobox"
                 className="w-full justify-between"
               >
-                {categoryId
-                  ? categories.find((category) => category.id === categoryId)
-                      ?.name
-                  : "Select category..."}
+                {categoryId ? (
+                  categories.find((category) => category.id === categoryId)
+                    ?.name
+                ) : loadingCategories ? (
+                  <Spiner /> // Show spinner if categories are loading
+                ) : (
+                  "Select category..."
+                )}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -320,10 +342,14 @@ const UploadComponent = () => {
                 className="w-full justify-between"
                 disabled={!categoryId}
               >
-                {activityId
-                  ? activities.find((activity) => activity.id === activityId)
-                      ?.name
-                  : "Select activity..."}
+                {activityId ? (
+                  activities.find((activity) => activity.id === activityId)
+                    ?.name
+                ) : loadingActivities ? (
+                  <Spiner /> // Show spinner if activities are loading
+                ) : (
+                  "Select activity..."
+                )}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -359,9 +385,13 @@ const UploadComponent = () => {
                 className="w-full justify-between"
                 disabled={!activityId}
               >
-                {tagId
-                  ? tags.find((tag) => tag.id === tagId)?.name
-                  : "Select sub activity..."}
+                {tagId ? (
+                  tags.find((tag) => tag.id === tagId)?.name
+                ) : loadingTags ? (
+                  <Spiner /> // Show spinner if tags are loading
+                ) : (
+                  "Select sub activity..."
+                )}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
@@ -400,7 +430,7 @@ const UploadComponent = () => {
           <Button
             type="submit"
             disabled={uploading}
-            className={`bg-[#004680] hover:bg-[#005194] active:bg-[#0060B4]  ${
+            className={`btn-primary  ${
               uploading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >

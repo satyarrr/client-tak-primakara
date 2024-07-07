@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import useAuthentication from "../hooks/useAuthentication";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Spiner from "@/components/ui/Loading";
 import { cn } from "@/lib/utils";
 import {
   Command,
@@ -26,25 +27,27 @@ const CreateActivity = () => {
   const [activityName, setActivityName] = useState("");
   const [error, setError] = useState(null);
   const [openCategory, setOpenCategory] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/categories`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch categories");
-        }
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-
     fetchCategories();
+    setLoading(false);
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/categories`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch categories");
+      }
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
 
   const handleActivityNameChange = (e) => {
     setActivityName(e.target.value);
@@ -77,10 +80,17 @@ const CreateActivity = () => {
     }
   };
 
-  if (!user) {
+  if (user?.role !== "admin") {
     return (
       <div>
-        <p>Loading...</p>
+        <p>Sorry you don't have access to this page</p>
+      </div>
+    );
+  }
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <Spiner size="large" />
       </div>
     );
   }
@@ -145,7 +155,7 @@ const CreateActivity = () => {
             />
           </div>
 
-          <Button type="submit" className="btn w-full">
+          <Button type="submit" className="btn-primary w-full">
             Create Activity
           </Button>
         </form>

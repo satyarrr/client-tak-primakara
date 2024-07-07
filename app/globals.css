@@ -2,18 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* @font-face {
-  font-family: "XDPrime";
-  src: url("/fonts/XDPrime-Regular.otf") format("opentype");
-  font-weight: normal;
-  font-style: normal;
-}
-@font-face {
-  font-family: "XDPrime";
-  src: url("/fonts/XDPrime-Bold.otf") format("opentype");
-  font-weight: bold;
-  font-style: normal;
-} */
 .btn-primary {
   @apply bg-[#004680] hover:bg-[#005194] active:bg-[#0060B4] text-white;
 }
@@ -23,6 +11,26 @@
 .btn-warning {
   @apply bg-[#EE6363] text-white;
 }
+
+.th {
+  @apply py-2 px-4 border-gray-200 bg-gray-300 text-center;
+}
+.td {
+  @apply py-2 px-4 border border-gray-200 text-center whitespace-nowrap;
+}
+.sticky-thead th {
+  position: sticky;
+  top: 0;
+  background-color: white; /* Ensure it's on top of other elements */
+  z-index: 10; /* Ensure it's on top of other elements */
+}
+.sticky-actions {
+  position: sticky;
+  right: 0;
+  background-color: white; /* Ensure it's on top of other elements */
+  z-index: 10; /* Ensure it's on top of other elements */
+}
+
 @layer base {
   :root {
     /* --font-xdprime: "XDPrime", sans-serif; */

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import useAuthentication from "../hooks/useAuthentication";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Spiner from "./ui/Loading";
 import {
   Popover,
   PopoverContent,
@@ -29,26 +30,27 @@ const CreateTag = () => {
   const [error, setError] = useState(null);
   const [openCategory, setOpenCategory] = useState(false);
   const [openActivity, setOpenActivity] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/categories`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch categories");
-        }
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        setError(error.message);
-      }
-    };
-
     fetchCategories();
+    setLoading(false);
   }, []);
 
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/categories`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch categories");
+      }
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
   useEffect(() => {
     if (selectedCategoryId) {
       const fetchActivities = async () => {
@@ -106,11 +108,18 @@ const CreateTag = () => {
       setError(error.message);
     }
   };
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
+        <Spiner size="large" />
+      </div>
+    );
+  }
 
-  if (!user) {
+  if (user?.role !== "admin") {
     return (
       <div>
-        <p>Loading...</p>
+        <p>Sorry you don't have access to this page</p>
       </div>
     );
   }
@@ -207,7 +216,7 @@ const CreateTag = () => {
               type="text"
               id="tagName"
               value={tagName}
-              placeholder="Input tag name"
+              placeholder="Input sub activity name"
               onChange={handleTagNameChange}
               className="input input-bordered w-full mt-3"
               required
@@ -218,14 +227,14 @@ const CreateTag = () => {
               type="number"
               id="tagValue"
               value={tagValue}
-              placeholder="Input tag value"
+              placeholder="Input sub activity value"
               onChange={handleTagValueChange}
               className="input input-bordered w-full mt-3"
               required
             />
           </div>
 
-          <Button type="submit" className="btn w-full">
+          <Button type="submit" className="btn-primary w-full">
             Create Tag
           </Button>
         </form>

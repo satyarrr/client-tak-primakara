@@ -3,8 +3,8 @@
 import useAuthentication from "../hooks/useAuthentication";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { BiSortAlt2, BiSortUp, BiSortDown, BiZoomIn } from "react-icons/bi";
-import { BsEye } from "react-icons/bs";
+import { BiSortAlt2, BiSortUp, BiSortDown } from "react-icons/bi";
+import Spiner from "@/components/ui/Loading"; // Ensure this import is correct
 
 const CertificatesUser = () => {
   const { user } = useAuthentication();
@@ -21,6 +21,8 @@ const CertificatesUser = () => {
   const [certificateReason, setCertificateReason] = useState(null);
   const [showReasonModal, setShowReasonModal] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const fetchCertificates = async () => {
     try {
@@ -144,6 +146,52 @@ const CertificatesUser = () => {
           return sortConfig.direction === "ascending"
             ? aActivity.localeCompare(bActivity)
             : bActivity.localeCompare(aActivity);
+        } else if (sortConfig.key === "category") {
+          const aCategory =
+            categories.find(
+              (category) =>
+                category.id ===
+                activities.find(
+                  (activity) =>
+                    activity.id ===
+                    tags.find((tag) => tag.id === a.tag_id)?.activity_id
+                )?.category_id
+            )?.name || "";
+          const bCategory =
+            categories.find(
+              (category) =>
+                category.id ===
+                activities.find(
+                  (activity) =>
+                    activity.id ===
+                    tags.find((tag) => tag.id === b.tag_id)?.activity_id
+                )?.category_id
+            )?.name || "";
+          return sortConfig.direction === "ascending"
+            ? aCategory.localeCompare(bCategory)
+            : bCategory.localeCompare(aCategory);
+        } else if (sortConfig.key === "subActivity") {
+          const aSubActivity =
+            tags.find((tag) => tag.id === a.tag_id)?.name || "";
+          const bSubActivity =
+            tags.find((tag) => tag.id === b.tag_id)?.name || "";
+          return sortConfig.direction === "ascending"
+            ? aSubActivity.localeCompare(bSubActivity)
+            : bSubActivity.localeCompare(aSubActivity);
+        } else if (sortConfig.key === "dateUpload") {
+          return sortConfig.direction === "ascending"
+            ? new Date(a.time_stamp) - new Date(b.time_stamp)
+            : new Date(b.time_stamp) - new Date(a.time_stamp);
+        } else if (sortConfig.key === "timeUpload") {
+          return sortConfig.direction === "ascending"
+            ? new Date(a.time_stamp).getTime() -
+                new Date(b.time_stamp).getTime()
+            : new Date(b.time_stamp).getTime() -
+                new Date(a.time_stamp).getTime();
+        } else if (sortConfig.key === "dateActivity") {
+          return sortConfig.direction === "ascending"
+            ? new Date(a.activity_date) - new Date(b.activity_date)
+            : new Date(b.activity_date) - new Date(a.activity_date);
         } else {
           if (a[sortConfig.key] < b[sortConfig.key]) {
             return sortConfig.direction === "ascending" ? -1 : 1;
@@ -156,7 +204,7 @@ const CertificatesUser = () => {
       });
     }
     return sortableCertificates;
-  }, [certificates, sortConfig, tags, activities]);
+  }, [certificates, sortConfig, tags, activities, categories]);
 
   const getSortIcon = (key) => {
     if (sortConfig.key === key) {
@@ -167,6 +215,26 @@ const CertificatesUser = () => {
       );
     }
     return <BiSortAlt2 />;
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentCertificates = sortedCertificates.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  const totalPages = Math.ceil(sortedCertificates.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   if (user?.role !== "mahasiswa") {
@@ -184,7 +252,7 @@ const CertificatesUser = () => {
   if (loadingCertificates || loadingTags) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <span className="loading loading-ring loading-lg"></span>
+        <Spiner size="large" />
       </div>
     );
   }
@@ -207,19 +275,47 @@ const CertificatesUser = () => {
               >
                 Status {getSortIcon("status")}
               </th>
-              <th className="py-2 px-4 text-center">Kategori</th>
               <th
-                className="py-2 px-4 text-center"
+                className="py-2 px-4 text-center cursor-pointer"
+                onClick={() => requestSort("category")}
+              >
+                Category {getSortIcon("category")}
+              </th>
+              <th
+                className="py-2 px-4 text-center cursor-pointer"
                 onClick={() => requestSort("activity")}
               >
-                Kegiatan{getSortIcon("activity")}
+                Activity {getSortIcon("activity")}
               </th>
-              <th className="py-2 px-4 text-center">Sub Activitas</th>
+              <th
+                className="py-2 px-4 text-center cursor-pointer"
+                onClick={() => requestSort("subActivity")}
+              >
+                Sub Activity {getSortIcon("subActivity")}
+              </th>
               <th
                 className="py-2 px-4 text-center cursor-pointer"
                 onClick={() => requestSort("value")}
               >
-                Poin{getSortIcon("value")}
+                Poin {getSortIcon("value")}
+              </th>
+              <th
+                className="py-2 px-4 text-center cursor-pointer"
+                onClick={() => requestSort("dateUpload")}
+              >
+                Date Upload {getSortIcon("dateUpload")}
+              </th>
+              <th
+                className="py-2 px-4 text-center cursor-pointer"
+                onClick={() => requestSort("timeUpload")}
+              >
+                Time Upload {getSortIcon("timeUpload")}
+              </th>
+              <th
+                className="py-2 px-4 text-center cursor-pointer"
+                onClick={() => requestSort("dateActivity")}
+              >
+                Date Activity {getSortIcon("dateActivity")}
               </th>
               <th className="py-2 px-4 text-center">Action</th>
             </tr>
@@ -287,18 +383,37 @@ const CertificatesUser = () => {
                     .map((tag) => tag.value)
                     .join(", ")}
                 </td>
+                <td className="py-2 px-4 border border-gray-200 text-center">
+                  {new Date(certificate.time_stamp).toLocaleDateString(
+                    "en-GB",
+                    {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    }
+                  )}
+                </td>
+                <td className="py-2 px-4 border border-gray-200 text-center">
+                  {new Date(certificate.time_stamp).toLocaleTimeString(
+                    "en-US",
+                    { hour: "2-digit", minute: "2-digit", hour12: false }
+                  )}
+                </td>
+                <td className="py-2 px-4 border border-gray-200 text-center">
+                  {formatDate(certificate.activity_date)}
+                </td>
                 <td className="border border-gray-200 text-center flex gap-2 py-2">
                   <Button
-                    className="btn ml-4"
+                    className="btn-primary"
                     onClick={() => handlePreview(certificate.file_path)}
                   >
-                    <BsEye />
+                    Preview
                   </Button>
                   <Button
-                    className="btn"
+                    className="btn-primary"
                     onClick={() => handleOpenReasonModal(certificate.reason)}
                   >
-                    <BiZoomIn />
+                    Detail
                   </Button>
                 </td>
               </tr>
@@ -306,6 +421,30 @@ const CertificatesUser = () => {
           </tbody>
         </table>
       </div>
+      <div className="flex justify-center items-center mt-4">
+        <Button
+          className={`btn-primary  ${
+            currentPage === 1 ? "disabled:opacity-50" : ""
+          }`}
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </Button>
+        <span className="mx-2">
+          Page {currentPage} of {totalPages}
+        </span>
+        <Button
+          className={`btn-primary ${
+            currentPage === totalPages ? "disabled:opacity-50" : ""
+          }`}
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </Button>
+      </div>
+
       {previewPDF && (
         <div className="fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center ">
           <div className="bg-white items-center p-5 w-[500] justify-center rounded-lg">

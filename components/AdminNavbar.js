@@ -3,6 +3,7 @@ import React from "react";
 import useAuthentication from "../hooks/useAuthentication";
 import Link from "next/link";
 import Image from "next/image";
+import { Button } from "./ui/button";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -94,11 +95,7 @@ const AdminNavbar = () => {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger>Menu</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <Link
-                      href="/dashboard-admin/dashboard"
-                      legacyBehavior
-                      passHref
-                    >
+                    <Link href="/dashboard-admin" legacyBehavior passHref>
                       <NavigationMenuLink
                         className={navigationMenuTriggerStyle()}
                       >
@@ -127,12 +124,12 @@ const AdminNavbar = () => {
                         Mahasiswa List
                       </NavigationMenuLink>
                     </Link>
-                    <button
+                    <Button
                       onClick={logout}
                       className="hover:bg-slate-200 rounded-md font-medium p-4  text-sm"
                     >
                       Logout
-                    </button>
+                    </Button>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
               </NavigationMenuList>
