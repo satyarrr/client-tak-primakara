@@ -248,7 +248,7 @@ const UploadComponent = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mb-40"
+        className="bg-white p-8 rounded-lg shadow-md w-[70%] mb-40"
       >
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-700">
           Upload Certificate

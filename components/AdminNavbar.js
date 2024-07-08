@@ -124,6 +124,18 @@ const AdminNavbar = () => {
                         Mahasiswa List
                       </NavigationMenuLink>
                     </Link>
+                    <Link
+                      href="/dashboard-admin/upload-many"
+                      legacyBehavior
+                      passHref
+                    >
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        Upload Certificate
+                      </NavigationMenuLink>
+                    </Link>
+
                     <Button
                       onClick={logout}
                       className="hover:bg-slate-200 rounded-md font-medium p-4  text-sm"

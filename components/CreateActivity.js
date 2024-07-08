@@ -97,7 +97,7 @@ const CreateActivity = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 pt-8">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mb-96">
+      <div className="bg-white p-8 rounded-lg shadow-md w-[70%] mb-96">
         <h3 className="text-lg font-semibold mb-4 text-center">
           Create Activity
         </h3>

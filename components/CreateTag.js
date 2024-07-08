@@ -126,8 +126,10 @@ const CreateTag = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 pt-8">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mb-96">
-        <h3 className="text-lg font-semibold mb-4 text-center">Create Tag</h3>
+      <div className="bg-white p-8 rounded-lg shadow-md w-[70%] mb-96">
+        <h3 className="text-lg font-semibold mb-4 text-center">
+          Create Sub Activity
+        </h3>
         <form onSubmit={handleSubmitTag}>
           <div className="mb-4">
             <Popover open={openCategory} onOpenChange={setOpenCategory}>
@@ -235,7 +237,7 @@ const CreateTag = () => {
           </div>
 
           <Button type="submit" className="btn-primary w-full">
-            Create Tag
+            Create Sub Activity
           </Button>
         </form>
       </div>
