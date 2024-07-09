@@ -78,6 +78,7 @@ const MahasiswaDashboard = () => {
             <h2 className="text-xl font-semibold mb-3 text-gray-800">
               Total Points
             </h2>
+            <div>{userData.totalPointsAll}/126</div>
             <div className="grid grid-cols-1 gap-4">
               {Object.entries(userData.totalPoints).map(
                 ([category, { points, min_point }]) => (
