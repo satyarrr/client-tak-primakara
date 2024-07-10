@@ -3,15 +3,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Spinner from "@/components/ui/Loading";
 
 const Login = () => {
   const [nim, setNim] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
@@ -34,6 +37,8 @@ const Login = () => {
       router.push(data.redirect);
     } catch (error) {
       setError("Invalid credentials. Please try again.");
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -97,8 +102,12 @@ const Login = () => {
               />
             </div>
             <div className="flex items-center justify-between">
-              <Button type="submit" className="btn-primary w-full">
-                Sign In
+              <Button
+                type="submit"
+                className="btn-primary w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? <Spinner /> : "Sign In"}
               </Button>
             </div>
           </form>
