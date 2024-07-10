@@ -1,6 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import useAuthentication from "../hooks/useAuthentication";
+import { Button } from "@/components/ui/button";
+import ModalCertificates from "@/components/ui/ModalCertificates";
+import Spiner from "./ui/Loading";
 
 const MahasiswaList = () => {
   const { user } = useAuthentication();
@@ -8,8 +11,6 @@ const MahasiswaList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchNIM, setSearchNIM] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [showModalCertificates, setShowModalCertificates] = useState(false);
   const [certificates, setCertificates] = useState([]);
   const [tags, setTags] = useState([]);
@@ -18,6 +19,11 @@ const MahasiswaList = () => {
   const [loadingImage, setLoadingImage] = useState(false);
   const [certificateReason, setCertificateReason] = useState(null);
   const [showReasonModal, setShowReasonModal] = useState(false);
+  const [showModalDetail, setShowModalDetail] = useState(false);
+  const [modalDetailPoints, setModalDetailPoints] = useState({});
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const fetchMahasiswa = async () => {
     try {
@@ -28,13 +34,21 @@ const MahasiswaList = () => {
         throw new Error("Failed to fetch data");
       }
       const data = await response.json();
-      setMahasiswa(data);
+      const updatedMahasiswa = data.map((mhs) => ({
+        ...mhs,
+        totalPoints: mhs.totalPoints || 0,
+        changeInPointxrsLastMonth: calculateChangeInPointsLastMonth(
+          mhs.certificates
+        ),
+      }));
+      setMahasiswa(updatedMahasiswa);
       setLoading(false);
     } catch (error) {
       setError(error.message);
       setLoading(false);
     }
   };
+
   const fetchTags = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tags`);
@@ -47,6 +61,7 @@ const MahasiswaList = () => {
       setError(error.message);
     }
   };
+
   const fetchCertificates = async (userId) => {
     setLoading(true);
     try {
@@ -84,11 +99,15 @@ const MahasiswaList = () => {
         throw new Error("Failed to fetch points data");
       }
       const data = await response.json();
-      setSelectedUser({ ...user, totalPoints: data.user.totalPoints });
-      setShowModal(true);
+      console.log("Fetched data:", data);
+      if (data.totalPoints) {
+        setSelectedUser({ ...user, totalPoints: data.totalPoints });
+        setShowModalDetail(true);
+      } else {
+        console.error("No totalPoints found in the response");
+      }
     } catch (error) {
       console.error("Error fetching points data:", error.message);
-      // Handle the error appropriately, such as showing a message to the user
     }
   };
 
@@ -96,7 +115,6 @@ const MahasiswaList = () => {
     try {
       const certificates = await fetchCertificates(user.user_id);
       setCertificates(certificates);
-      setSelectedUser(user);
       setShowModalCertificates(true);
     } catch (error) {
       console.error("Error handling certificates click:", error.message);
@@ -115,16 +133,10 @@ const MahasiswaList = () => {
         throw new Error("Failed to delete certificate");
       }
       console.log("Certificate deleted successfully");
-      // Remove the deleted certificate from the local state
       setCertificates((prevCertificates) => {
-        const updatedCertificates = prevCertificates.filter(
+        return prevCertificates.filter(
           (cert) => cert.cert_id !== certificateId
         );
-        console.log(
-          "Updated certificates after deletion:",
-          updatedCertificates
-        );
-        return updatedCertificates;
       });
       alert("Certificate deleted");
     } catch (error) {
@@ -134,17 +146,15 @@ const MahasiswaList = () => {
     }
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setSelectedUser(null);
-  };
-
   const closeModalCertificates = () => {
     setShowModalCertificates(false);
-    setSelectedUser(null);
     setPreviewImage(null);
     setPreviewPDF(null);
     setShowReasonModal(false);
+  };
+
+  const closeModalPreviewPDF = () => {
+    setPreviewPDF(null);
   };
 
   const handlePreview = (filePath) => {
@@ -160,19 +170,46 @@ const MahasiswaList = () => {
       setPreviewImage(null);
       console.error("File format not supported");
     }
-    {
-      setLoading(false);
-    }
+    setLoadingImage(false);
   };
 
   const handleOpenReasonModal = (reasonPath) => {
     setCertificateReason(reasonPath);
     setShowReasonModal(true);
   };
+  const calculateChangeInPointsLastMonth = (certificates = []) => {
+    const today = new Date();
+    const lastMonth = new Date(today);
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+    const pointsLastMonth = certificates
+      ? certificates
+          .filter((cert) => new Date(cert.time_stamp) > lastMonth)
+          .reduce((acc, cert) => {
+            const tag = tags.find((tag) => tag.tag_id === cert.tag_id);
+            return acc + (tag ? tag.value : 0);
+          }, 0)
+      : 0;
+
+    return pointsLastMonth;
+  };
 
   const filteredMahasiswa = mahasiswa.filter((user) =>
     user.nim.toString().includes(searchNIM)
   );
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentMahasiswa = filteredMahasiswa.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
+
+  const totalPages = Math.ceil(filteredMahasiswa.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   if (user?.role !== "admin") {
     return (
       <div>
@@ -183,7 +220,7 @@ const MahasiswaList = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <span className="loading loading-ring loading-lg"></span>
+        <Spiner />
       </div>
     );
   }
@@ -204,10 +241,11 @@ const MahasiswaList = () => {
       <table className="w-full">
         <thead>
           <tr className="bg-gray-200">
-            <th className="py-2 px-4">Nama</th>
+            <th className="py-2 px-4">Name</th>
             <th className="py-2 px-4 text-center">NIM</th>
-            <th className="py-2 px-4 text-center">Total Poin TAK</th>
-            <th className="py-2 px-4 text-center">Aksi</th>
+            <th className="py-2 px-4 text-center">Total Points</th>
+            <th className="py-2 px-4 text-center">Points This Month</th>
+            <th className="py-2 px-4 text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -216,53 +254,113 @@ const MahasiswaList = () => {
               <td className="py-2 px-4">{user.full_name}</td>
               <td className="py-2 px-4 text-center">{user.nim}</td>
               <td className="py-2 px-4 text-center">{user.totalPoints}</td>
+              <td className="py-2 px-4 text-center text-green-400">
+                + {user.currentMonthPoints}
+              </td>
               <td className="py-2 px-4 text-center">
-                <button onClick={() => handleDetailClick(user)} className="btn">
+                <Button
+                  onClick={() => handleDetailClick(user)}
+                  className="btn-primary"
+                >
                   Detail
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => handleCertificatesClick(user)}
-                  className="btn ml-2"
+                  className="btn-primary ml-2"
                 >
                   Certificates
-                </button>
+                </Button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {showModal && selectedUser && (
+      <div className="flex justify-center mt-4">
+        <nav aria-label="Page navigation">
+          <ul className="inline-flex space-x-2">
+            {Array.from({ length: totalPages }, (_, index) => (
+              <li key={index}>
+                <Button
+                  className={`btn-primary ${
+                    index + 1 === currentPage
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                  onClick={() => handlePageChange(index + 1)}
+                >
+                  {index + 1}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      {showModalCertificates && (
+        <ModalCertificates
+          certificates={certificates}
+          tags={tags}
+          closeModalCertificates={closeModalCertificates}
+          handlePreview={handlePreview}
+          handleDeleteCertificate={handleDeleteCertificate}
+          handleOpenReasonModal={handleOpenReasonModal}
+        />
+      )}
+
+      {previewPDF && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div
+            className="fixed inset-0 bg-black opacity-50"
+            onClick={closeModalPreviewPDF}
+          ></div>
+          <div
+            className="relative bg-white rounded-lg shadow-lg z-50 p-4"
+            style={{ width: "80%", height: "80%" }}
+          >
+            <button
+              className="absolute top-2 right-2 text-gray-600"
+              onClick={closeModalPreviewPDF}
+            >
+              &times;
+            </button>
+            <embed
+              src={previewPDF}
+              type="application/pdf"
+              width="100%"
+              height="100%"
+            />
+          </div>
+        </div>
+      )}
+      {showModalDetail && selectedUser && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-20 pb-20 text-center sm:block sm:p-0">
             <div
               className="fixed inset-0 transition-opacity"
               aria-hidden="true"
             >
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
-
             <span
               className="hidden sm:inline-block sm:align-middle sm:h-screen"
               aria-hidden="true"
             >
               &#8203;
             </span>
-
             <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                     <h3 className="text-lg leading-6 font-medium text-gray-900 mb-2">
-                      Detail Poin
+                      Detail Points
                     </h3>
-                    {/* Render points data here */}
                     <ul className="list-disc list-inside">
                       {Object.entries(selectedUser.totalPoints).map(
                         ([category, points]) => (
                           <li key={category} className="mb-2 text-gray-700">
                             <span className="font-semibold">{category}:</span>{" "}
-                            {points}
+                            {points.points}
                           </li>
                         )
                       )}
@@ -271,193 +369,31 @@ const MahasiswaList = () => {
                 </div>
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button onClick={closeModal} className="btn">
-                  Tutup
-                </button>
+                <Button
+                  onClick={() => setShowModalDetail(false)}
+                  className="btn-warning"
+                >
+                  Close
+                </Button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {showModalCertificates && selectedUser && (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div
-              className="fixed inset-0 transition-opacity"
-              aria-hidden="true"
-            >
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-
-            <span
-              className="hidden sm:inline-block sm:align-middle sm:h-screen"
-              aria-hidden="true"
-            >
-              &#8203;
-            </span>
-
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-2">
-                      Certificates
-                    </h3>
-                    <div className="overflow-x-auto">
-                      <table className="w-full bg-white border-collapse border border-gray-200">
-                        <thead>
-                          <tr className="bg-gray-100">
-                            <th className="py-2 px-4 text-center">Title</th>
-                            <th className="py-2 px-4 text-center">Status</th>
-                            <th className="py-2 px-4 text-center">Tag Name</th>
-                            <th className="py-2 px-4 text-center">Poin TAK</th>
-                            <th className="py-2 px-4 text-center">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {certificates.map((certificate) => (
-                            <tr key={certificate.cert_id}>
-                              <td className="py-2 px-4 border border-gray-200">
-                                {certificate.title}
-                              </td>
-                              <td className="py-2 px-4 border border-gray-200 text-center">
-                                <div
-                                  className={`w-5 h-5 rounded-full mx-auto flex items-center justify-center tooltip ${
-                                    certificate.status === "reject"
-                                      ? "bg-red-500"
-                                      : certificate.status === "pending"
-                                      ? "bg-yellow-500"
-                                      : "bg-green-500"
-                                  }`}
-                                  data-tip={
-                                    certificate.status === "reject"
-                                      ? "Rejected"
-                                      : certificate.status === "pending"
-                                      ? "Pending"
-                                      : "Approved"
-                                  }
-                                ></div>
-                              </td>
-                              <td className="py-2 px-4 border border-gray-200">
-                                {tags
-                                  .filter(
-                                    (tag) => tag.id === certificate.tag_id
-                                  )
-                                  .map((tag) => tag.name)
-                                  .join(", ")}
-                              </td>
-                              <td className="py-2 px-4 border border-gray-200 text-center">
-                                {tags
-                                  .filter(
-                                    (tag) => tag.id === certificate.tag_id
-                                  )
-                                  .map((tag) => tag.value)
-                                  .join(", ")}
-                              </td>
-                              <td className="border border-gray-200 text-center flex gap-2 py-2">
-                                <button
-                                  className="btn ml-4"
-                                  onClick={() =>
-                                    handlePreview(certificate.file_path)
-                                  }
-                                >
-                                  Preview
-                                </button>
-                                <button
-                                  className="btn"
-                                  onClick={() =>
-                                    handleOpenReasonModal(certificate.reason)
-                                  }
-                                >
-                                  Detail
-                                </button>
-                                <button
-                                  className="btn ml-2"
-                                  onClick={() =>
-                                    handleDeleteCertificate(
-                                      certificate.cert_id,
-                                      user.user_id
-                                    )
-                                  }
-                                >
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button onClick={closeModalCertificates} className="btn">
-                  Tutup
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {previewImage && (
-        <div className=" z-50 fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center">
-          <div className="bg-slate-50 items-center p-5 w-[500px] justify-center  rounded-lg ">
-            {loadingImage && (
-              <div className="flex items-center justify-center h-screen bg-slate-50">
-                <span className="loading loading-ring loading-lg"></span>
-              </div>
-            )}
-
-            <div className=" flex flex-col justify-center items-center">
-              <h2 className="font-semibold mb-2 text-center">
-                Image Certificate
-              </h2>
-              <img
-                src={previewImage}
-                alt="Certificate Preview"
-                className="object-cover w-60"
-                onLoad={() => setLoadingImage(false)}
-              />
-            </div>
-            <div className=" w-full flex justify-end">
-              <button className="btn" onClick={() => setPreviewImage(null)}>
-                close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {previewPDF && (
-        <div className=" z-50 fixed top-0 left-0 w-full h-full bg-gray-200/75 flex items-center justify-center ">
-          <div className="bg-white items-center p-5 w-[500] justify-center rounded-lg">
-            <div className=" flex flex-col justify-center items-center">
-              <h2 className="text-semi bold mb-2 text-center">
-                PDF Certificate
-              </h2>
-              <iframe
-                src={previewPDF}
-                className="w-full h-[450px]"
-                title="PDF Preview"
-              ></iframe>
-            </div>
-            <div className="w-full flex justify-end">
-              <button className="btn" onClick={() => setPreviewPDF(null)}>
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
       {showReasonModal && (
-        <div className=" z-50 fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-75 flex items-center justify-center ">
-          <div className="bg-white p-4 rounded-lg">
-            <h2 className="text-lg font-semibold mb-4">Certificate Reason</h2>
-            <p className="overflow-auto max-h-80 m-5 ">{certificateReason}</p>
-            <button className="btn" onClick={() => setShowReasonModal(false)}>
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div
+            className="fixed inset-0 bg-black opacity-50"
+            onClick={() => setShowReasonModal(false)}
+          ></div>
+          <div className="bg-white rounded-lg shadow-lg z-50 p-6">
+            <h2 className="text-xl font-bold mb-4">Reason</h2>
+            <p>{certificateReason}</p>
+            <button
+              className="btn-warning mt-4"
+              onClick={() => setShowReasonModal(false)}
+            >
               Close
             </button>
           </div>
