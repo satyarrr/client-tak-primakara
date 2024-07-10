@@ -10,6 +10,7 @@ const MahasiswaDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [calculationComplete, setCalculationComplete] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -40,12 +41,13 @@ const MahasiswaDashboard = () => {
         );
         const percentage = (totalPoints / userData.min_point) * 100;
         setProgress(Math.min(percentage, 100));
+        setCalculationComplete(true);
       }, 1000);
       return () => clearTimeout(timer);
     }
   }, [userData]);
 
-  if (loading) {
+  if (loading || !calculationComplete) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <Spiner size="large" />
@@ -78,7 +80,10 @@ const MahasiswaDashboard = () => {
             <h2 className="text-xl font-semibold mb-3 text-gray-800">
               Total Points
             </h2>
-            <div>{userData.totalPointsAll}/126</div>
+            <div className="text-center">
+              {" "}
+              {userData.totalPointsAll} points of 126
+            </div>
             <div className="grid grid-cols-1 gap-4">
               {Object.entries(userData.totalPoints).map(
                 ([category, { points, min_point }]) => (
