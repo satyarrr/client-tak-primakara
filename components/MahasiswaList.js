@@ -369,12 +369,12 @@ const MahasiswaList = () => {
                 </div>
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button
+                <Button
                   onClick={() => setShowModalDetail(false)}
-                  className="btn"
+                  className="btn-warning"
                 >
-                  Tutup
-                </button>
+                  Close
+                </Button>
               </div>
             </div>
           </div>
@@ -391,7 +391,7 @@ const MahasiswaList = () => {
             <h2 className="text-xl font-bold mb-4">Reason</h2>
             <p>{certificateReason}</p>
             <button
-              className="btn mt-4"
+              className="btn-warning mt-4"
               onClick={() => setShowReasonModal(false)}
             >
               Close

@@ -103,7 +103,7 @@ const CreateTag = () => {
       setTagValue("");
       setTagName("");
       setError(null);
-      alert("Tag created successfully!");
+      alert("Sub Ativity created successfully!");
     } catch (error) {
       setError(error.message);
     }

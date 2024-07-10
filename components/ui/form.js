@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Input } from "./input";
+import { Button } from "./button";
 
 const Form = ({ type, item, onSave, onClose }) => {
   const [formData, setFormData] = useState({
@@ -58,8 +59,8 @@ const Form = ({ type, item, onSave, onClose }) => {
                 onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
-                <option value={true}>True</option>
-                <option value={false}>False</option>
+                <option value={true}>Show</option>
+                <option value={false}>Archived</option>
               </select>
             </label>
           </div>
@@ -88,8 +89,8 @@ const Form = ({ type, item, onSave, onClose }) => {
                 onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
-                <option value={true}>True</option>
-                <option value={false}>False</option>
+                <option value={true}>Show</option>
+                <option value={false}>Archived</option>
               </select>
             </label>
           </div>
@@ -130,20 +131,20 @@ const Form = ({ type, item, onSave, onClose }) => {
                 onChange={handleChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
-                <option value={true}>True</option>
-                <option value={false}>False</option>
+                <option value={true}>Show</option>
+                <option value={false}>Arcived</option>
               </select>
             </label>
           </div>
         </>
       )}
       <div className="flex justify-end">
-        <button type="submit" className="btn btn-primary mr-2">
+        <Button type="submit" className="btn btn-primary mr-2">
           Save
-        </button>
-        <button type="button" className="btn btn-secondary" onClick={onClose}>
+        </Button>
+        <Button type="button" className="btn btn-warning" onClick={onClose}>
           Cancel
-        </button>
+        </Button>
       </div>
     </form>
   );

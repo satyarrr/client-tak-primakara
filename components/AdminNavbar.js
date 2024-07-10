@@ -24,7 +24,7 @@ const AdminNavbar = () => {
     <nav className=" px-4 bg-white items-center  shadow-md">
       <div className="">
         <div className="flex justify-between h-16">
-          <div className=" flex items-center">
+          <Link href="/dashboard-admin" className=" flex items-center">
             <Image
               priority={true}
               src="/primakara-logo.png"
@@ -33,7 +33,7 @@ const AdminNavbar = () => {
               alt="Picture of the author"
             />
             <span className="font-bold text-lg">TAK Primakara</span>
-          </div>
+          </Link>
 
           <div className=" flex mr-4">
             <NavigationMenu>
@@ -121,7 +121,7 @@ const AdminNavbar = () => {
                       <NavigationMenuLink
                         className={navigationMenuTriggerStyle()}
                       >
-                        Mahasiswa List
+                        Student List
                       </NavigationMenuLink>
                     </Link>
                     <Link

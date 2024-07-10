@@ -135,9 +135,33 @@ const UploadComponent = () => {
     }
   };
 
+  // const handleFileChange = (e) => {
+  //   if (e.target.files && e.target.files.length > 0) {
+  //     const selectedFile = e.target.files[0];
+  //     if (selectedFile.type !== "application/pdf") {
+  //       MySwal.fire({
+  //         title: "Error!",
+  //         text: "Only PDF files are allowed.",
+  //         icon: "error",
+  //         confirmButtonText: "OK",
+  //         customClass: {
+  //           confirmButton: "bg-red-500 text-white rounded px-4 py-2",
+  //         },
+  //         buttonsStyling: false,
+  //       });
+  //       fileInputRef.current.value = "";
+  //       setFile(null);
+  //     } else {
+  //       setFile(selectedFile);
+  //     }
+  //   }
+  // };
+
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
+
+      // Check file type
       if (selectedFile.type !== "application/pdf") {
         MySwal.fire({
           title: "Error!",
@@ -151,9 +175,29 @@ const UploadComponent = () => {
         });
         fileInputRef.current.value = "";
         setFile(null);
-      } else {
-        setFile(selectedFile);
+        return;
       }
+
+      // Check file size (in bytes)
+      if (selectedFile.size > 2 * 1024 * 1024) {
+        // 2MB limit
+        MySwal.fire({
+          title: "Error!",
+          text: "File size should not exceed 2MB.",
+          icon: "error",
+          confirmButtonText: "OK",
+          customClass: {
+            confirmButton: "bg-red-500 text-white rounded px-4 py-2",
+          },
+          buttonsStyling: false,
+        });
+        fileInputRef.current.value = "";
+        setFile(null);
+        return;
+      }
+
+      // If all validations pass, set the file
+      setFile(selectedFile);
     }
   };
 
@@ -206,18 +250,36 @@ const UploadComponent = () => {
           fileInputRef.current.value = "";
         }
       } else {
-        const error = await response.json();
-        console.error("Upload failed:", error);
-        MySwal.fire({
-          title: "Error!",
-          text: "File upload failed. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-          customClass: {
-            confirmButton: "bg-red-500 text-white rounded px-4 py-2",
-          },
-          buttonsStyling: false,
-        });
+        // Handle specific error scenarios
+        const errorData = await response.json();
+
+        if (
+          response.status === 400 &&
+          errorData.message === "DuplicateCertificateError"
+        ) {
+          MySwal.fire({
+            title: "Error!",
+            text: "Please do not upload the same certificate.",
+            icon: "error",
+            confirmButtonText: "OK",
+            customClass: {
+              confirmButton: "bg-red-500 text-white rounded px-4 py-2",
+            },
+            buttonsStyling: false,
+          });
+        } else {
+          console.error("Upload failed:", errorData);
+          MySwal.fire({
+            title: "Error!",
+            text: "File upload failed. Please try again.",
+            icon: "error",
+            confirmButtonText: "OK",
+            customClass: {
+              confirmButton: "bg-red-500 text-white rounded px-4 py-2",
+            },
+            buttonsStyling: false,
+          });
+        }
       }
     } catch (error) {
       console.error("Upload error:", error);
